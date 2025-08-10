@@ -27,7 +27,6 @@ trimm = {
 }
 
 def set_servo(servos):
-    """Ustawia serwa na podane pozycje i aktualizuje current_positions"""
     global current_positions
     
     # Dodaj trim do każdego kanału
