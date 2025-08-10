@@ -3,7 +3,7 @@ import json
 import time
 
 # ZMIEŃ NA ADRES IP SWOJEGO ESP8266
-ESP_IP = "192.168.0.164"
+ESP_IP = "192.168.4.1"
 ESP_PORT = 8888
 
 # Pozycje początkowe serw
