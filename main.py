@@ -87,5 +87,22 @@ def walk():
         # Faza 4
         move_servo({1:90, 2:130, 4:60, 11:130, 12:90, 13:60})
     
+def test_servos():
+    move_servo({1:100})
+    time.sleep(2)
+    move_servo({2:100})
+    time.sleep(2)
+    move_servo({3:100})
+    time.sleep(2)
+    move_servo({4:100})
+    time.sleep(2)
+    move_servo({11:100})
+    time.sleep(2)
+    move_servo({12:100})
+    time.sleep(2)
+    move_servo({13:100})
+    time.sleep(2)
+    move_servo({14:100})
+    time.sleep(2)
 
 walk()
