@@ -1,0 +1,156 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #000;
+    color: #fff;
+    font-family: 'Arial', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 30px;
+    font-size: 2rem;
+    color: #00ff41;
+    text-shadow: 0 0 10px #00ff41;
+}
+
+.button-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.robot-btn {
+    width: 120px;
+    height: 40px;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: #fff;
+    border: 2px solid #00ff41;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+}
+
+.robot-btn:hover {
+    background: linear-gradient(135deg, #2a5298, #1e3c72);
+    box-shadow: 0 0 15px #00ff41;
+    transform: translateY(-2px);
+}
+
+.robot-btn:active {
+    background: linear-gradient(135deg, #00ff41, #00cc33);
+    color: #000;
+    transform: translateY(0);
+    box-shadow: 0 0 20px #00ff41;
+}
+
+/* Pusty slot - niewidoczny ale zachowuje miejsce */
+.robot-btn.empty-slot {
+    visibility: hidden;
+    border: none;
+    background: none;
+    cursor: default;
+}
+
+.robot-btn.empty-slot:hover,
+.robot-btn.empty-slot:active {
+    transform: none;
+    box-shadow: none;
+}
+
+.status-message {
+    margin-top: 20px;
+    padding: 10px;
+    min-height: 40px;
+    background: rgba(0, 255, 65, 0.1);
+    border: 1px solid #00ff41;
+    border-radius: 5px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-message.success {
+    color: #00ff41;
+    background: rgba(0, 255, 65, 0.2);
+}
+
+.status-message.error {
+    color: #ff4444;
+    background: rgba(255, 68, 68, 0.2);
+    border-color: #ff4444;
+}
+
+/* Responsywność dla urządzeń mobilnych */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+    
+    .robot-btn {
+        width: 100px;
+        height: 45px;
+        font-size: 12px;
+    }
+    
+    .button-row {
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .robot-btn {
+        width: 90px;
+        height: 40px;
+        font-size: 11px;
+    }
+    
+    .button-row {
+        gap: 6px;
+    }
+    
+    h1 {
+        font-size: 1.3rem;
+    }
+}
+
+/* Dodatkowe efekty dla lepszego UX */
+@keyframes pulse {
+    0% { box-shadow: 0 0 5px #00ff41; }
+    50% { box-shadow: 0 0 20px #00ff41; }
+    100% { box-shadow: 0 0 5px #00ff41; }
+}
+
+.robot-btn.sending {
+    animation: pulse 1s infinite;
+    pointer-events: none;
+}
