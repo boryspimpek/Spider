@@ -104,5 +104,3 @@ def test_servos():
     time.sleep(2)
     move_servo({14:100})
     time.sleep(2)
-
-walk()

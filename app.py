@@ -4,7 +4,7 @@ import main
 app = Flask(__name__)
 
 ACTIONS = {
-    'test_servo': main.test_servo,
+    'walk': main.walk,
     # Add new actions here
 }
 
