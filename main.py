@@ -73,34 +73,32 @@ def move_servo(end_pos, steps=5, delay=0.01):
 def reset_to_initial():
     move_servo(initial_positions)
 
+# def walk():
+#     move_servo({1:90, 2:130, 3:120, 4:60, 11:130, 12:90, 13:60, 14:120})
+#     time.sleep(0.5)
+
+#     for i in range(5):
+#         # Faza 1
+#         move_servo({1:70, 2:110, 4:120, 11:110, 12:70, 13:120})
+#         # Faza 2
+#         move_servo({1:50, 2:90, 4:60, 11:90, 12:50, 13:60})
+#         # Faza 3
+#         move_servo({1:70, 2:110, 3:60, 11:110, 12:70, 14:60})
+#         # Faza 4
+#         move_servo({1:90, 2:130, 3:120, 11:130, 12:90, 14:120})
+    
 def walk():
-    move_servo({1:90, 2:130, 3:120, 4:60, 11:130, 12:90, 13:60, 14:120})
+    move_servo({1:50, 2:90, 3:120, 4:60, 11:130, 12:90, 13:60, 14:120})
     time.sleep(0.5)
 
     for i in range(5):
         # Faza 1
-        move_servo({1:70, 2:110, 3:60, 11:110, 12:70, 14:60})
-        # Faza 2
-        move_servo({1:50, 2:90, 3:120, 11:90, 12:50, 14:120})
-        # Faza 3
         move_servo({1:70, 2:110, 4:120, 11:110, 12:70, 13:120})
+        # Faza 2
+        move_servo({1:90, 2:130, 4:60, 11:90, 12:50, 13:60})
+        # Faza 3
+        move_servo({1:70, 2:110, 3:60, 11:110, 12:70, 14:60})
         # Faza 4
-        move_servo({1:90, 2:130, 4:60, 11:130, 12:90, 13:60})
-    
-def test_servos():
-    move_servo({1:100})
-    time.sleep(2)
-    move_servo({2:100})
-    time.sleep(2)
-    move_servo({3:100})
-    time.sleep(2)
-    move_servo({4:100})
-    time.sleep(2)
-    move_servo({11:100})
-    time.sleep(2)
-    move_servo({12:100})
-    time.sleep(2)
-    move_servo({13:100})
-    time.sleep(2)
-    move_servo({14:100})
-    time.sleep(2)
+        move_servo({1:50, 2:90, 3:120, 11:130, 12:90, 14:120})
+
+walk()
