@@ -1,3 +1,4 @@
+import math
 import socket
 import json
 import time
@@ -8,21 +9,27 @@ ESP_PORT = 8888
 
 # Pozycje początkowe serw
 initial_positions = {
-    1: 90, 2: 90, 3: 90, 4: 90,
-    11: 90, 12: 90, 13: 90, 14: 90
+    1: 90, 2: 70, 3: 90, 4: 110,
+    11: 90, 12: 110, 13: 90, 14: 70
 }
+
+# Mapowanie nóg do kanałów serw
+#     'LF': {'coxa': 1, 'femur': 2, 'side': 'left', 'position': 'front'},
+#     'RF': {'coxa': 3, 'femur': 4, 'side': 'right', 'position': 'front'},
+#     'LB': {'coxa': 11, 'femur': 12, 'side': 'left', 'position': 'back'},
+#     'RB': {'coxa': 13, 'femur': 14, 'side': 'right', 'position': 'back'}
 
 # Aktualne pozycje serw (inicjalizowane pozycjami początkowymi)
 current_positions = initial_positions.copy()
 
 trimm = {
     1: 3,
-    2: 5,
-    3: 3,
-    4: -5,  
-    11: 0,
-    12: 3,
-    13: -5,
+    2: -5,
+    3: 0,
+    4: -8,  
+    11: -10,
+    12: 2,
+    13: 20,
     14: -5
 }
 
@@ -73,34 +80,7 @@ def move_servo(end_pos, steps=5, delay=0.01):
 def reset_to_initial():
     move_servo(initial_positions)
 
-# def walk():
-#     move_servo({1:90, 2:130, 3:120, 4:60, 11:130, 12:90, 13:60, 14:120})
-#     time.sleep(0.5)
 
-#     for i in range(5):
-#         # Faza 1
-#         move_servo({1:70, 2:110, 4:120, 11:110, 12:70, 13:120})
-#         # Faza 2
-#         move_servo({1:50, 2:90, 4:60, 11:90, 12:50, 13:60})
-#         # Faza 3
-#         move_servo({1:70, 2:110, 3:60, 11:110, 12:70, 14:60})
-#         # Faza 4
-#         move_servo({1:90, 2:130, 3:120, 11:130, 12:90, 14:120})
-    
-def walk():
-    move_servo({1:50, 2:90, 3:120, 4:60, 11:130, 12:90, 13:60, 14:120})
-    time.sleep(0.5)
 
-    for i in range(5):
-        # Faza 1
-        move_servo({1:70, 2:110, 4:120, 11:110, 12:70, 13:120})
-        # Faza 2
-        move_servo({1:90, 2:130, 4:60, 11:90, 12:50, 13:60})
-        # Faza 3
-        move_servo({1:70, 2:110, 3:60, 11:110, 12:70, 14:60})
-        # Faza 4
-        move_servo({1:50, 2:90, 3:120, 11:130, 12:90, 14:120})
+reset_to_initial()
 
-move_servo({1:50, 11:130})
-time.sleep(2)
-move_servo({1:90, 11:90})
