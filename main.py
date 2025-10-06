@@ -82,5 +82,10 @@ def reset_to_initial():
 
 
 
-reset_to_initial()
+move_servo({
+    1: 85, 2: 60,     # LF
+    3: 65, 4: 120,     # RF
+    11: 75, 12: 120,   # LB  
+    13: 135, 14: 60    # RB
+})
 

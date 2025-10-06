@@ -77,29 +77,31 @@ def reset_to_initial():
 
 # Parametry chodu
 STEP_COUNT = 3  # Liczba kroków w cyklu
-z_amp = 35
+x_amp = 30
+z_amp = 40
+offset_front = -5
+offset_back = 15
 
 
-for cycle in range(6):  # Wykonaj 3 cykle chodu
+for cycle in range(10):  
     print(f"Cykl chodu {cycle + 1}")
     
     for i in range(STEP_COUNT):
-        ############### FAZA 1 #################
-        # LF i RB w fazie SWING (podnoszą się)
-        coxaLF = 90 + i * (40/STEP_COUNT)        # LF przesuwa sie 
-        femurLF = 70 + z_amp * math.sin(i * math.pi/STEP_COUNT)   # podnosi się i opuszcza
-        
-        coxaRB = 130 - i * (40/STEP_COUNT)       # RB przesuwa sie   
-        femurRB = 70 + z_amp * math.sin(i * math.pi/STEP_COUNT)   # podnosi się i opuszcza
+        # LF i RB w swing
+        coxaLF = 90 + offset_front + i * (x_amp/STEP_COUNT)
+        femurLF = 60 + z_amp * math.sin(i * math.pi / STEP_COUNT)
 
-        # RF i LB w fazie stance (na ziemi)
-        coxaRF = 50 + i * (40/STEP_COUNT)        # RF przesuwa się 
-        femurRF = 110                             # na ziemi
+        coxaRB = 90 + offset_back + x_amp - i * (x_amp/STEP_COUNT)
+        femurRB = 60 + z_amp * math.sin(i * math.pi / STEP_COUNT)
 
-        coxaLB = 90 - i * (40/STEP_COUNT)        # LB przesuwa się 
-        femurLB = 110                             # na ziemi
+        # RF i LB w stance
+        coxaRF = 90 - offset_front - x_amp + i * (x_amp/STEP_COUNT)
+        femurRF = 120
 
-        print(f"Faza 1 - krok {i + 1}: coxaLF({coxaLF:.2f}, femurLF{femurLF:.2f}) coxaRB({coxaRB:.2f}, femurRB{femurRB:.2f}) | coxaRF({coxaRF:.2f}, femurRF{femurRF:.2f}) coxaLB({coxaLB:.2f}, femurLB{femurLB:.2f})")
+        coxaLB = 90 - offset_back - i * (x_amp/STEP_COUNT)
+        femurLB = 120
+
+        print(f"Faza 1 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
         move_servo({
             1: int(coxaLF), 2: int(femurLF),     # LF
             3: int(coxaRF), 4: int(femurRF),     # RF
@@ -108,22 +110,21 @@ for cycle in range(6):  # Wykonaj 3 cykle chodu
         })
 
     for i in range(STEP_COUNT):
-        ################ FAZA 2 #################
-        # LF i RB w fazie stance (na ziemi)
-        coxaLF = 130 - i * (40/STEP_COUNT)       # LF przesuwa sie 
-        femurLF = 70                             # na ziemi
+        # RF i LB w swing
+        coxaRF = 90 - offset_front - i * (x_amp/STEP_COUNT)
+        femurRF = 120 - z_amp * math.sin(i * math.pi / STEP_COUNT)
 
-        coxaRB = 90 + i * (40/STEP_COUNT)        # RB przesuwa sie 
-        femurRB = 70                             # na ziemi
+        coxaLB = 90 - offset_back - x_amp + i * (x_amp/STEP_COUNT)
+        femurLB = 120 - z_amp * math.sin(i * math.pi / STEP_COUNT)
 
-        # RF i LB w fazie SWING (podnoszą się)
-        coxaRF = 90 - i * (40/STEP_COUNT)        # RF przesuwa się 
-        femurRF = 110 - z_amp * math.sin(i * math.pi/STEP_COUNT)   # podnosi się i opuszcza
+        # LF i RB w stance
+        coxaLF = 90 + offset_front + x_amp - i * (x_amp/STEP_COUNT)
+        femurLF = 60
 
-        coxaLB = 50 + i * (40/STEP_COUNT)        # LB przesuwa się 
-        femurLB = 110 - z_amp * math.sin(i * math.pi/STEP_COUNT)   # podnosi się i opuszcza
+        coxaRB = 90 + offset_back + i * (x_amp/STEP_COUNT)
+        femurRB = 60
         
-        print(f"Faza 1 - krok {i + 1}: coxaLF({coxaLF:.2f}, femurLF{femurLF:.2f}) coxaRB({coxaRB:.2f}, femurRB{femurRB:.2f}) | coxaRF({coxaRF:.2f}, femurRF{femurRF:.2f}) coxaLB({coxaLB:.2f}, femurLB{femurLB:.2f})")
+        print(f"Faza 2 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
         move_servo({
             1: int(coxaLF), 2: int(femurLF),     # LF
             3: int(coxaRF), 4: int(femurRF),     # RF
