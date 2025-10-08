@@ -25,7 +25,6 @@ h1 {
     margin-bottom: 30px;
     font-size: 2rem;
     color: #00ff41;
-    text-shadow: 0 0 10px #00ff41;
 }
 
 .button-row {
@@ -47,23 +46,15 @@ h1 {
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
-    transition: all 0.2s ease;
     text-transform: uppercase;
     letter-spacing: 1px;
     flex-shrink: 0;
-}
-
-.robot-btn:hover {
-    background: linear-gradient(135deg, #2a5298, #1e3c72);
-    box-shadow: 0 0 15px #00ff41;
-    transform: translateY(-2px);
-}
-
-.robot-btn:active {
-    background: linear-gradient(135deg, #00ff41, #00cc33);
-    color: #000;
-    transform: translateY(0);
-    box-shadow: 0 0 20px #00ff41;
+    /* Zapobiegaj zaznaczaniu tekstu */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-touch-callout: none;
 }
 
 /* Pusty slot - niewidoczny ale zachowuje miejsce */
@@ -72,12 +63,6 @@ h1 {
     border: none;
     background: none;
     cursor: default;
-}
-
-.robot-btn.empty-slot:hover,
-.robot-btn.empty-slot:active {
-    transform: none;
-    box-shadow: none;
 }
 
 .status-message {
@@ -141,16 +126,4 @@ h1 {
     h1 {
         font-size: 1.3rem;
     }
-}
-
-/* Dodatkowe efekty dla lepszego UX */
-@keyframes pulse {
-    0% { box-shadow: 0 0 5px #00ff41; }
-    50% { box-shadow: 0 0 20px #00ff41; }
-    100% { box-shadow: 0 0 5px #00ff41; }
-}
-
-.robot-btn.sending {
-    animation: pulse 1s infinite;
-    pointer-events: none;
 }

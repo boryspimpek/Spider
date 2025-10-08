@@ -9,8 +9,8 @@ ESP_PORT = 8888
 
 # Pozycje początkowe serw
 initial_positions = {
-    1: 90, 2: 70, 3: 90, 4: 110,
-    11: 90, 12: 110, 13: 90, 14: 70
+    1: 90, 2: 90, 3: 90, 4: 90,
+    11: 90, 12: 90, 13: 90, 14: 90
 }
 
 # Aktualne pozycje serw (inicjalizowane pozycjami początkowymi)
@@ -40,11 +40,11 @@ def set_servo(servos):
     
     try:
         command = json.dumps({"set_servo": trimmed_servos})
-        print(f"Wysyłam: {command}")
+        # print(f"Wysyłam: {command}")
         
         sock.sendto(command.encode(), (ESP_IP, ESP_PORT))
         response, _ = sock.recvfrom(1024)
-        print(f"Odpowiedź: {response.decode()}")
+        # print(f"Odpowiedź: {response.decode()}")
         
         # Zaktualizuj aktualne pozycje
         current_positions.update(servos)
@@ -54,7 +54,7 @@ def set_servo(servos):
     finally:
         sock.close()
 
-def move_servo(end_pos, steps=5, delay=0.01):
+def move_servo(end_pos, steps=3, delay=0.01):
     global current_positions
     
     channels = end_pos.keys()
@@ -75,11 +75,61 @@ def reset_to_initial():
     move_servo(initial_positions)
 
 
-def walk():
-    move_servo({
-        1: 85, 2: 60,      # LF
-        3: 65, 4: 120,     # RF
-        11: 75, 12: 120,   # LB  
-        13: 135, 14: 60    # RB
-    })
+# Parametry chodu
+STEP_COUNT = 3  # Liczba kroków w cyklu
+x_amp = 30
+z_amp = 40
+offset_front = -5
+offset_back = 15
 
+def walk():
+    while True:  
+        # print(f"Cykl chodu {cycle + 1}")
+        
+        for i in range(STEP_COUNT):
+            # LF i RB w swing
+            coxaLF = 90 + offset_front + i * (x_amp/STEP_COUNT)
+            femurLF = 60 + z_amp * math.sin(i * math.pi / STEP_COUNT)
+
+            coxaRB = 90 + offset_back + x_amp - i * (x_amp/STEP_COUNT)
+            femurRB = 60 + z_amp * math.sin(i * math.pi / STEP_COUNT)
+
+            # RF i LB w stance
+            coxaRF = 90 - offset_front - x_amp + i * (x_amp/STEP_COUNT)
+            femurRF = 120
+
+            coxaLB = 90 - offset_back - i * (x_amp/STEP_COUNT)
+            femurLB = 120
+
+            print(f"Faza 1 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
+            move_servo({
+                1: int(coxaLF), 2: int(femurLF),     # LF
+                3: int(coxaRF), 4: int(femurRF),     # RF
+                11: int(coxaLB), 12: int(femurLB),   # LB  
+                13: int(coxaRB), 14: int(femurRB)    # RB
+            })
+
+        for i in range(STEP_COUNT):
+            # RF i LB w swing
+            coxaRF = 90 - offset_front - i * (x_amp/STEP_COUNT)
+            femurRF = 120 - z_amp * math.sin(i * math.pi / STEP_COUNT)
+
+            coxaLB = 90 - offset_back - x_amp + i * (x_amp/STEP_COUNT)
+            femurLB = 120 - z_amp * math.sin(i * math.pi / STEP_COUNT)
+
+            # LF i RB w stance
+            coxaLF = 90 + offset_front + x_amp - i * (x_amp/STEP_COUNT)
+            femurLF = 60
+
+            coxaRB = 90 + offset_back + i * (x_amp/STEP_COUNT)
+            femurRB = 60
+            
+            print(f"Faza 2 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
+            move_servo({
+                1: int(coxaLF), 2: int(femurLF),     # LF
+                3: int(coxaRF), 4: int(femurRF),     # RF
+                11: int(coxaLB), 12: int(femurLB),   # LB
+                13: int(coxaRB), 14: int(femurRB)    # RB
+            })
+
+walk()
