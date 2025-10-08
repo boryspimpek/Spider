@@ -1,4 +1,3 @@
-// script.js
 document.addEventListener('DOMContentLoaded', () => {
     function sendRequest(url) {
         fetch(url)
@@ -25,18 +24,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Obsługa przycisku walk forward (touch/hold)
-    const walkBtn = document.getElementById('walk forward');
-    if (walkBtn) {
-        walkBtn.addEventListener('mousedown', () => sendRequest('/walkforward/start'));
-        walkBtn.addEventListener('mouseup', () => sendRequest('/stopwalk'));
-        walkBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            sendRequest('/walkforward/start');
-        });
-        walkBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            sendRequest('/stopwalk');
-        });
+    const walkForwardBtn = document.getElementById('walk forward');
+    if (walkForwardBtn) {
+        walkForwardBtn.addEventListener('mousedown', () => sendRequest('/walkforward'));
+        walkForwardBtn.addEventListener('mouseup', () => sendRequest('/stopwalk'));
+        walkForwardBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('/walkforward');});
+        walkForwardBtn.addEventListener('touchend', (e) => {e.preventDefault();sendRequest('/stopwalk');});
+    }
+
+    // Obsługa przycisku walk back (touch/hold)
+    const walkBackBtn = document.getElementById('walk back');
+    if (walkBackBtn) {
+        walkBackBtn.addEventListener('mousedown', () => sendRequest('/walkback'));
+        walkBackBtn.addEventListener('mouseup', () => sendRequest('/stopwalk'));
+        walkBackBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('/walkback');});
+        walkBackBtn.addEventListener('touchend', (e) => {e.preventDefault();sendRequest('/stopwalk');});
     }
 
     // Udostępnij funkcję sendCommand globalnie dla innych przycisków

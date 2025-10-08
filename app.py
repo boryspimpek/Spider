@@ -1,12 +1,12 @@
-# app.py
 import time
 from flask import Flask, render_template, jsonify
 import threading
-from main import walk, reset_to_initial
+from main import walk_forward, walk_back, reset_to_initial
 
 app = Flask(__name__)
 
-walking = False
+walking_forward = False
+walking_backward = False
 walk_stop_event = threading.Event()
 reset_in_progress = False  # Nowa flaga
 
@@ -15,35 +15,56 @@ reset_in_progress = False  # Nowa flaga
 def index():
     return render_template('index.html')
 
-def walk_loop():
-    global walking, reset_in_progress
-    walking = True
+def walk_forward_loop():
+    global walking_forward, reset_in_progress
+    walking_forward = True
     walk_stop_event.clear()
     
-    while walking and not walk_stop_event.is_set():
-        walk(walk_stop_event)
+    while walking_forward and not walk_stop_event.is_set():
+        walk_forward(walk_stop_event)
+    
+    # Poczekaj aż reset się zakończy zanim wątek się zakończy
+    while reset_in_progress:
+        time.sleep(0.01)
+
+def walk_back_loop():
+    global walking_backward, reset_in_progress
+    walking_backward = True
+    walk_stop_event.clear()
+    
+    while walking_backward and not walk_stop_event.is_set():
+        walk_back(walk_stop_event)
     
     # Poczekaj aż reset się zakończy zanim wątek się zakończy
     while reset_in_progress:
         time.sleep(0.01)
 
 # walk forward
-@app.route('/walkforward/start')
+@app.route('/walkforward')
 def walkforward_start():
-    global walking, reset_in_progress
-    if not walking and not reset_in_progress:
-        threading.Thread(target=walk_loop).start()
-    return jsonify({'status': 'walk started'})
+    global walking_forward, walking_backward, reset_in_progress
+    if not walking_forward and not walking_backward and not reset_in_progress:
+        threading.Thread(target=walk_forward_loop).start()
+    return jsonify({'status': 'walk forward started'})
+
+# walk back
+@app.route('/walkback')
+def walkback_start():
+    global walking_forward, walking_backward, reset_in_progress
+    if not walking_forward and not walking_backward and not reset_in_progress:
+        threading.Thread(target=walk_back_loop).start()
+    return jsonify({'status': 'walk back started'})
 
 # stop walk
 @app.route('/stopwalk')
 def stopwalk():
-    global walking, reset_in_progress
+    global walking_forward, walking_backward, reset_in_progress
     
-    if not walking:
+    if not walking_forward and not walking_backward:
         return jsonify({'status': 'not walking'})
         
-    walking = False
+    walking_forward = False
+    walking_backward = False
     walk_stop_event.set()
     
     # Poczekaj chwilę na zakończenie aktualnej fazy chodu
@@ -57,4 +78,4 @@ def stopwalk():
     return jsonify({'status': 'walk stopped'})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
