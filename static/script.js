@@ -41,6 +41,25 @@ document.addEventListener('DOMContentLoaded', () => {
         walkBackBtn.addEventListener('touchend', (e) => {e.preventDefault();sendRequest('/stopwalk');});
     }
 
+    // Obsługa przycisku turn right (touch/hold)
+    const turnRightBtn = document.getElementById('turn right');
+    if (turnRightBtn) {
+        turnRightBtn.addEventListener('mousedown', () => sendRequest('/turnright'));
+        turnRightBtn.addEventListener('mouseup', () => sendRequest('/stopwalk'));
+        turnRightBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('/turnright');});
+        turnRightBtn.addEventListener('touchend', (e) => {e.preventDefault();sendRequest('/stopwalk');});
+    }
+
+    // Obsługa przycisku turn left (touch/hold)
+    const turnLeftBtn = document.getElementById('turn left');
+    if (turnLeftBtn) {
+        turnLeftBtn.addEventListener('mousedown', () => sendRequest('/turnleft'));
+        turnLeftBtn.addEventListener('mouseup', () => sendRequest('/stopwalk'));
+        turnLeftBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('/turnleft');});
+        turnLeftBtn.addEventListener('touchend', (e) => {e.preventDefault();sendRequest('/stopwalk');});
+    }
+
+
     // Udostępnij funkcję sendCommand globalnie dla innych przycisków
     window.sendCommand = sendCommand;
 });
