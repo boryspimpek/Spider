@@ -13,12 +13,6 @@ initial_positions = {
     11: 90, 12: 110, 13: 90, 14: 70
 }
 
-# Mapowanie nóg do kanałów serw
-#     'LF': {'coxa': 1, 'femur': 2, 'side': 'left', 'position': 'front'},
-#     'RF': {'coxa': 3, 'femur': 4, 'side': 'right', 'position': 'front'},
-#     'LB': {'coxa': 11, 'femur': 12, 'side': 'left', 'position': 'back'},
-#     'RB': {'coxa': 13, 'femur': 14, 'side': 'right', 'position': 'back'}
-
 # Aktualne pozycje serw (inicjalizowane pozycjami początkowymi)
 current_positions = initial_positions.copy()
 
@@ -81,11 +75,11 @@ def reset_to_initial():
     move_servo(initial_positions)
 
 
-
-move_servo({
-    1: 85, 2: 60,     # LF
-    3: 65, 4: 120,     # RF
-    11: 75, 12: 120,   # LB  
-    13: 135, 14: 60    # RB
-})
+def walk():
+    move_servo({
+        1: 85, 2: 60,      # LF
+        3: 65, 4: 120,     # RF
+        11: 75, 12: 120,   # LB  
+        13: 135, 14: 60    # RB
+    })
 
