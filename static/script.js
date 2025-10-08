@@ -1,58 +1,44 @@
-// Uniwersalna funkcja do wysyłania komend do robota
-function sendCommand(action) {
-    const statusDiv = document.getElementById('status');
-    
-    // Wyświetl informację o wysyłaniu
-    updateStatus(`Wysyłam komendę: ${action}...`, 'info');
-    
-    fetch(`/move/${action}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            updateStatus(`✓ ${data.message}`, 'success');
-        } else {
-            updateStatus(`✗ ${data.message}`, 'error');
-        }
-    })
-    .catch(error => {
-        updateStatus(`✗ Błąd połączenia: ${error.message}`, 'error');
-        console.error('Error:', error);
-    });
-}
+// script.js
+document.addEventListener('DOMContentLoaded', () => {
+    function sendRequest(url) {
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('status').textContent = data.status || 'Command sent';
+            })
+            .catch(err => {
+                console.error('Request failed:', err);
+                document.getElementById('status').textContent = 'Error sending command';
+            });
+    }
 
-// Funkcja do aktualizacji statusu
-function updateStatus(message, type) {
-    const statusDiv = document.getElementById('status');
-    statusDiv.textContent = message;
-    statusDiv.className = `status-message ${type}`;
-    
-    // Automatycznie wyczyść status po 5 sekundach
-    setTimeout(() => {
-        if (statusDiv.textContent === message) {
-            statusDiv.textContent = '';
-            statusDiv.className = 'status-message';
-        }
-    }, 5000);
-}
+    function sendCommand(command) {
+        fetch('/' + command)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('status').textContent = data.status || 'Command sent';
+            })
+            .catch(err => {
+                console.error('Request failed:', err);
+                document.getElementById('status').textContent = 'Error sending command';
+            });
+    }
 
-// Obsługa gestów mobilnych (opcjonalne)
-document.addEventListener('DOMContentLoaded', function() {
-    // Zapobiegnij podwójnemu tapnięciu na mobilnych
-    let lastTap = 0;
-    document.addEventListener('touchend', function (e) {
-        const currentTime = new Date().getTime();
-        const tapLength = currentTime - lastTap;
-        if (tapLength < 500 && tapLength > 0) {
+    // Obsługa przycisku walk forward (touch/hold)
+    const walkBtn = document.getElementById('walk forward');
+    if (walkBtn) {
+        walkBtn.addEventListener('mousedown', () => sendRequest('/walkforward/start'));
+        walkBtn.addEventListener('mouseup', () => sendRequest('/stopwalk'));
+        walkBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
-        }
-        lastTap = currentTime;
-    });
-    
-    // Pokaż wiadomość powitalną
-    updateStatus('Robot gotowy do sterowania', 'success');
+            sendRequest('/walkforward/start');
+        });
+        walkBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            sendRequest('/stopwalk');
+        });
+    }
+
+    // Udostępnij funkcję sendCommand globalnie dla innych przycisków
+    window.sendCommand = sendCommand;
 });
