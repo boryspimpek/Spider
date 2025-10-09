@@ -30,6 +30,15 @@ trimm = {
     14: -5
 }
 
+# Parametry chodzenia
+step_count=3
+x_amp=30
+z_amp=40
+offset_front=-5
+offset_back=15
+offset_turn=10
+offset_z = 30
+
 def set_servo(servos):
     global current_positions
     
@@ -80,13 +89,6 @@ def reset_to_initial():
     move_servo(initial_positions)
 
 
-step_count=3
-x_amp=30
-z_amp=40
-offset_front=-5
-offset_back=15
-offset_turn=10
-offset_z = 30
 
 
 def walk_back(stop_event=None):
@@ -301,7 +303,35 @@ def turn_left(stop_event=None):
             13: int(coxaRB), 14: int(femurRB)    # RB
         })
 
+def set_femur_from_joystick(x, y, max_angle_change=30):
+    """
+    Ustawia kąty femur na podstawie wartości joysticka.
+    x, y: wartości od -1 do 1
+    max_angle_change: maksymalna zmiana kąta w stopniach
+    """
+    # Skalowanie wartości joysticka do zakresu kątów
+    angle_x = y * max_angle_change # odwrócone osie y dla naturalnego ruchu
+    angle_y = x * max_angle_change
 
+    # Oblicz nowe kąty femur łącząc obie osie
+    new_femur_LF = int(90 - angle_y - angle_x)  # Lewy przód: y (przód/tył) + x (lewo/prawo)
+    new_femur_RF = int(90 - angle_y + angle_x)  # Prawy przód: y (przód/tył) + x (prawo/lewo)
+    new_femur_LB = int(90 + angle_y - angle_x)  # Lewy tył: y (tył/przód) + x (lewo/prawo)
+    new_femur_RB = int(90 + angle_y + angle_x)  # Prawy tył: y (tył/przód) + x (prawo/lewo)
+
+    # Ogranicz kąty do bezpiecznego zakresu (np. 30-150 stopni)
+    new_femur_LF = max(30, min(150, new_femur_LF))
+    new_femur_RF = max(30, min(150, new_femur_RF))
+    new_femur_LB = max(30, min(150, new_femur_LB))
+    new_femur_RB = max(30, min(150, new_femur_RB))
+
+    # Ustaw nowe pozycje femur
+    move_servo({
+        2: new_femur_LF,
+        4: new_femur_RF,
+        12: new_femur_LB,
+        14: new_femur_RB
+    }, steps=2, delay=0.02)
 
 
 

@@ -1,7 +1,7 @@
 import time
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 import threading
-from main import walk_forward, walk_back, turn_right, turn_left, reset_to_initial
+from main import walk_forward, walk_back, turn_right, turn_left, set_femur_from_joystick, reset_to_initial
 
 app = Flask(__name__)
 
@@ -12,6 +12,7 @@ movement_states = {
     'right': False,
     'left': False
 }
+
 walk_stop_event = threading.Event()
 reset_in_progress = False
 
@@ -101,6 +102,36 @@ def stopwalk():
     reset_in_progress = False
     
     return jsonify({'status': 'movement stopped'})
+
+@app.route('/joystick', methods=['POST'])
+def joystick_control():
+    """
+    Endpoint do kontroli femur przez joystick.
+    Oczekuje JSON z polami: x, y (wartości od -1 do 1)
+    """
+    try:
+        data = request.get_json()
+        x = float(data.get('x', 0))
+        y = float(data.get('y', 0))
+        
+        # Opcjonalnie: maksymalna zmiana kąta
+        max_angle = int(data.get('max_angle', 30))
+        
+        # Wywołaj funkcję z main.py
+        set_femur_from_joystick(x, y, max_angle_change=max_angle)
+        
+        return jsonify({
+            'status': 'success',
+            'x': x,
+            'y': y,
+            'message': f'Joystick: ({x:.2f}, {y:.2f})'
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Błąd joysticka: {str(e)}'
+        }), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

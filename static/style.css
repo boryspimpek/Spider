@@ -89,6 +89,115 @@ h1 {
     border-color: #ff4444;
 }
 
+
+
+/* Joystick Container */
+.joystick-container {
+    margin: 20px auto;
+    text-align: center;
+}
+
+.joystick-wrapper {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 20px auto;
+    background: radial-gradient(circle, #1a1a2e 0%, #0a0a0f 100%);
+    border-radius: 50%;
+    border: 3px solid #00ff41;
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+}
+
+.joystick-base {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 180px;
+    height: 180px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #2a2a3e, #1a1a2e);
+    border: 2px solid #333;
+}
+
+.joystick-handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60px;
+    height: 60px;
+    background: radial-gradient(circle at 30% 30%, #00ff41, #00aa2b);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: grab;
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.6);
+    transition: box-shadow 0.1s;
+    border: 2px solid #00ff41;
+    z-index: 10;
+}
+
+.joystick-handle:active {
+    cursor: grabbing;
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.9);
+}
+
+.joystick-crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.joystick-crosshair::before,
+.joystick-crosshair::after {
+    content: '';
+    position: absolute;
+    background: rgba(0, 255, 65, 0.2);
+}
+
+.joystick-crosshair::before {
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    transform: translateY(-50%);
+}
+
+.joystick-crosshair::after {
+    left: 50%;
+    top: 0;
+    height: 100%;
+    width: 1px;
+    transform: translateX(-50%);
+}
+
+.joystick-info {
+    margin-top: 15px;
+    font-family: 'Courier New', monospace;
+    color: #00ff41;
+    font-size: 14px;
+}
+
+.joystick-coords {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 10px;
+}
+
+.coord {
+    background: rgba(0, 255, 65, 0.1);
+    padding: 5px 15px;
+    border-radius: 5px;
+    border: 1px solid rgba(0, 255, 65, 0.3);
+}
+
+
+
+
 /* Responsywność dla urządzeń mobilnych */
 @media (max-width: 768px) {
     .container {

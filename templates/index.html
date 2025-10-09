@@ -1,29 +1,31 @@
 <!DOCTYPE html>
 <html lang="pl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Otto Robot Controller</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
     <div class="container">
         <h1>Otto Robot Control</h1>
-        
+
         <!-- Row 1 -->
         <div class="button-row">
             <button class="robot-btn empty-slot"></button> <!-- empty slot -->
             <button class="robot-btn" id="walk forward">Walk Forward</button>
             <button class="robot-btn empty-slot"></button> <!-- empty slot -->
         </div>
-        
+
         <!-- Row 2 -->
         <div class="button-row">
             <button class="robot-btn" id="turn left">Turn Left</button>
             <button class="robot-btn" id="walk back">Walk Back</button>
             <button class="robot-btn" id="turn right">Turn Right</button>
         </div>
-        
+
         <!-- Row 3 -->
         <div class="button-row">
             <button class="robot-btn" onclick="sendCommand('func5')">button</button>
@@ -31,18 +33,38 @@
             <button class="robot-btn" onclick="sendCommand('func7')">button</button>
             <button class="robot-btn" onclick="sendCommand('func8')">button</button>
         </div>
-        
+
         <!-- Row 4 -->
         <div class="button-row">
             <button class="robot-btn empty-slot"></button> <!-- empty slot -->
             <button class="robot-btn" onclick="sendCommand('func9')">button</button>
             <button class="robot-btn empty-slot"></button> <!-- empty slot -->
         </div>
-        
+
         <!-- Status feedback -->
         <div id="status" class="status-message"></div>
     </div>
-    
+    <div class="joystick-container">
+        <h2 style="color: #00ff41; font-family: 'Courier New', monospace;">
+            🕹️ Kontrola Femur
+        </h2>
+
+        <div class="joystick-wrapper" id="joystickWrapper">
+            <div class="joystick-base">
+                <div class="joystick-crosshair"></div>
+            </div>
+            <div class="joystick-handle" id="joystickHandle"></div>
+        </div>
+
+        <div class="joystick-info">
+            <div class="joystick-coords">
+                <div class="coord">X: <span id="joystickX">0.00</span></div>
+                <div class="coord">Y: <span id="joystickY">0.00</span></div>
+            </div>
+        </div>
+    </div>
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
+
 </html>

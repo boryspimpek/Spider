@@ -59,6 +59,149 @@ document.addEventListener('DOMContentLoaded', () => {
         turnLeftBtn.addEventListener('touchend', (e) => {e.preventDefault();sendRequest('/stopwalk');});
     }
 
+    // Joystick Control
+    (function() {
+        const wrapper = document.getElementById('joystickWrapper');
+        const handle = document.getElementById('joystickHandle');
+        const displayX = document.getElementById('joystickX');
+        const displayY = document.getElementById('joystickY');
+        
+        let isDragging = false;
+        let centerX, centerY, maxDistance;
+        let currentX = 0, currentY = 0;
+        let sendInterval = null;
+        
+        function init() {
+            const rect = wrapper.getBoundingClientRect();
+            centerX = rect.width / 2;
+            centerY = rect.height / 2;
+            maxDistance = (rect.width / 2) - 30; // Odległość od środka minus promień handle
+        }
+        
+        function updateHandlePosition(x, y) {
+            handle.style.left = `${centerX + x}px`;
+            handle.style.top = `${centerY + y}px`;
+            handle.style.transform = 'translate(-50%, -50%)';
+        }
+        
+        function normalizeCoordinates(x, y) {
+            // Normalizuj do zakresu -1 do 1
+            const normalizedX = Math.max(-1, Math.min(1, x / maxDistance));
+            const normalizedY = Math.max(-1, Math.min(1, -y / maxDistance)); // Odwróć Y (góra = dodatnie)
+            return { x: normalizedX, y: normalizedY };
+        }
+        
+        function sendJoystickData(x, y) {
+            fetch('/joystick', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ x, y })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Opcjonalnie: pokaż status
+                    // console.log('Joystick OK:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Joystick error:', error);
+            });
+        }
+        
+        function startDragging(e) {
+            isDragging = true;
+            handle.style.cursor = 'grabbing';
+            init();
+            
+            // Wysyłaj dane co 100ms podczas przeciągania
+            sendInterval = setInterval(() => {
+                if (isDragging) {
+                    const normalized = normalizeCoordinates(currentX, currentY);
+                    sendJoystickData(normalized.x, normalized.y);
+                }
+            }, 100);
+            
+            e.preventDefault();
+        }
+        
+        function stopDragging() {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            handle.style.cursor = 'grab';
+            
+            // Wyczyść interval
+            if (sendInterval) {
+                clearInterval(sendInterval);
+                sendInterval = null;
+            }
+            
+            // Wróć do środka z animacją
+            currentX = 0;
+            currentY = 0;
+            handle.style.transition = 'left 0.3s, top 0.3s';
+            updateHandlePosition(0, 0);
+            
+            // Wyślij pozycję neutralną
+            sendJoystickData(0, 0);
+            
+            // Zaktualizuj wyświetlanie
+            displayX.textContent = '0.00';
+            displayY.textContent = '0.00';
+            
+            setTimeout(() => {
+                handle.style.transition = '';
+            }, 300);
+        }
+        
+        function onMove(clientX, clientY) {
+            if (!isDragging) return;
+            
+            const rect = wrapper.getBoundingClientRect();
+            let x = clientX - rect.left - centerX;
+            let y = clientY - rect.top - centerY;
+            
+            // Ogranicz do okręgu
+            const distance = Math.sqrt(x * x + y * y);
+            if (distance > maxDistance) {
+                const angle = Math.atan2(y, x);
+                x = Math.cos(angle) * maxDistance;
+                y = Math.sin(angle) * maxDistance;
+            }
+            
+            currentX = x;
+            currentY = y;
+            
+            updateHandlePosition(x, y);
+            
+            // Zaktualizuj wyświetlanie
+            const normalized = normalizeCoordinates(x, y);
+            displayX.textContent = normalized.x.toFixed(2);
+            displayY.textContent = normalized.y.toFixed(2);
+        }
+        
+        // Event listeners - mysz
+        handle.addEventListener('mousedown', startDragging);
+        document.addEventListener('mouseup', stopDragging);
+        document.addEventListener('mousemove', (e) => {
+            onMove(e.clientX, e.clientY);
+        });
+        
+        // Event listeners - dotyk
+        handle.addEventListener('touchstart', (e) => {
+            startDragging(e);
+        });
+        document.addEventListener('touchend', stopDragging);
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging && e.touches.length > 0) {
+                onMove(e.touches[0].clientX, e.touches[0].clientY);
+                e.preventDefault();
+            }
+        });
+    })(); // Immediately invoke the joystick function
 
     // Udostępnij funkcję sendCommand globalnie dla innych przycisków
     window.sendCommand = sendCommand;
