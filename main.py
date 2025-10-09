@@ -43,7 +43,7 @@ def set_servo(servos):
     
     try:
         command = json.dumps({"set_servo": trimmed_servos})
-        print(f"Wysyłam: {command}")
+        # print(f"Wysyłam: {command}")
         
         sock.sendto(command.encode(), (ESP_IP, ESP_PORT))
         response, _ = sock.recvfrom(1024)
@@ -57,7 +57,7 @@ def set_servo(servos):
     finally:
         sock.close()
 
-def move_servo(end_pos, steps=3, delay=0.005, stop_event=None):
+def move_servo(end_pos, steps=4, delay=0.01, stop_event=None):
     global current_positions
     
     channels = end_pos.keys()
@@ -79,24 +79,34 @@ def move_servo(end_pos, steps=3, delay=0.005, stop_event=None):
 def reset_to_initial():
     move_servo(initial_positions)
 
-def walk_back(stop_event=None, step_count=3, x_amp=30, z_amp=40, offset_front=-5, offset_back=15):
+
+step_count=3
+x_amp=30
+z_amp=40
+offset_front=-5
+offset_back=15
+offset_turn=10
+offset_z = 30
+
+
+def walk_back(stop_event=None):
     for i in range(step_count):
         if stop_event and stop_event.is_set():  # Sprawdź czy przerwać
             return
                 
         # LF i RB w stance
         coxaLF = 90 + offset_back + i * (x_amp/step_count)
-        femurLF = 60 
+        femurLF = 90 - offset_z  
 
         coxaRB = 90 + offset_front + x_amp - i * (x_amp/step_count)
-        femurRB = 60 
+        femurRB = 90 - offset_z 
 
         # RF i LB w swing
         coxaRF = 90 - offset_back - x_amp + i * (x_amp/step_count)
-        femurRF = 120 - z_amp * math.sin(i * math.pi / step_count )
+        femurRF = (90 + offset_z) - z_amp * math.sin(i * math.pi / step_count )
 
         coxaLB = 90 - offset_front - i * (x_amp/step_count)
-        femurLB = 120 - z_amp * math.sin(i * math.pi / step_count)
+        femurLB = (90 + offset_z) - z_amp * math.sin(i * math.pi / step_count)
 
         print(f"Faza 1 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
         move_servo({
@@ -112,17 +122,17 @@ def walk_back(stop_event=None, step_count=3, x_amp=30, z_amp=40, offset_front=-5
                 
         # RF i LB w stance
         coxaRF = 90 - offset_back - i * (x_amp/step_count)
-        femurRF = 120 
+        femurRF = (90 + offset_z) 
 
         coxaLB = 90 - offset_front - x_amp + i * (x_amp/step_count)
-        femurLB = 120 
+        femurLB = (90 + offset_z) 
 
         # LF i RB w swing
         coxaLF = 90 + offset_back + x_amp - i * (x_amp/step_count)
-        femurLF = 60 + z_amp * math.sin(i * math.pi / step_count)
+        femurLF = (90 - offset_z) + z_amp * math.sin(i * math.pi / step_count)
 
         coxaRB = 90 + offset_front + i * (x_amp/step_count)
-        femurRB = 60 + z_amp * math.sin(i * math.pi / step_count)
+        femurRB = (90 - offset_z) + z_amp * math.sin(i * math.pi / step_count)
         
         print(f"Faza 2 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
         move_servo({
@@ -132,24 +142,24 @@ def walk_back(stop_event=None, step_count=3, x_amp=30, z_amp=40, offset_front=-5
             13: int(coxaRB), 14: int(femurRB)    # RB
         })
 
-def walk_forward(stop_event=None, step_count=3, x_amp=30, z_amp=40, offset_front=-5, offset_back=15):
+def walk_forward(stop_event=None):
     for i in range(step_count):
         if stop_event and stop_event.is_set():  # Sprawdź czy przerwać
             return
                 
         # LF i RB w swing
         coxaLF = 90 + offset_front + i * (x_amp/step_count)
-        femurLF = 60 + z_amp * math.sin(i * math.pi / step_count)
+        femurLF = (90 - offset_z) + z_amp * math.sin(i * math.pi / step_count)
 
         coxaRB = 90 + offset_back + x_amp - i * (x_amp/step_count)
-        femurRB = 60 + z_amp * math.sin(i * math.pi / step_count)
+        femurRB = (90 - offset_z) + z_amp * math.sin(i * math.pi / step_count)
 
         # RF i LB w stance
         coxaRF = 90 - offset_front - x_amp + i * (x_amp/step_count)
-        femurRF = 120
+        femurRF = (90 + offset_z)
 
         coxaLB = 90 - offset_back - i * (x_amp/step_count)
-        femurLB = 120
+        femurLB = (90 + offset_z)
 
         # print(f"Faza 1 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
         move_servo({
@@ -165,17 +175,17 @@ def walk_forward(stop_event=None, step_count=3, x_amp=30, z_amp=40, offset_front
                 
         # RF i LB w swing
         coxaRF = 90 - offset_front - i * (x_amp/step_count)
-        femurRF = 120 - z_amp * math.sin(i * math.pi / step_count)
+        femurRF = (90 + offset_z) - z_amp * math.sin(i * math.pi / step_count)
 
         coxaLB = 90 - offset_back - x_amp + i * (x_amp/step_count)
-        femurLB = 120 - z_amp * math.sin(i * math.pi / step_count)
+        femurLB = (90 + offset_z) - z_amp * math.sin(i * math.pi / step_count)
 
         # LF i RB w stance
         coxaLF = 90 + offset_front + x_amp - i * (x_amp/step_count)
-        femurLF = 60
+        femurLF = (90 - offset_z)
 
         coxaRB = 90 + offset_back + i * (x_amp/step_count)
-        femurRB = 60
+        femurRB = (90 - offset_z)
         
         # print(f"Faza 2 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
         move_servo({
@@ -185,24 +195,24 @@ def walk_forward(stop_event=None, step_count=3, x_amp=30, z_amp=40, offset_front
             13: int(coxaRB), 14: int(femurRB)    # RB
         })
 
-def turn_right(stop_event=None, step_count=3, x_amp=30, z_amp=30, offset=10):
+def turn_right(stop_event=None):
     for i in range(step_count):
         if stop_event and stop_event.is_set():  # Sprawdź czy przerwać
             return
                 
         # LF i RB w swing
-        coxaLF = 90 + offset + i * (x_amp/step_count)
-        femurLF = 60 + z_amp * math.sin(i * math.pi / step_count)
+        coxaLF = 90 + offset_turn + i * (x_amp/step_count)
+        femurLF = (90 - offset_z) + z_amp * math.sin(i * math.pi / step_count)
 
-        coxaRB = 90 + offset + i * (x_amp/step_count)
-        femurRB = 60 + z_amp * math.sin(i * math.pi / step_count)
+        coxaRB = 90 + offset_front + i * (x_amp/step_count)
+        femurRB = (90 - offset_z) + z_amp * math.sin(i * math.pi / step_count)
 
         # RF i LB w stance
-        coxaRF = 90 - offset - i * (x_amp/step_count)
-        femurRF = 120
+        coxaRF = 90 - offset_turn - i * (x_amp/step_count)
+        femurRF = (90 + offset_z)
 
-        coxaLB = 90 - offset - i * (x_amp/step_count)
-        femurLB = 120
+        coxaLB = 90 - offset_turn - i * (x_amp/step_count)
+        femurLB = (90 + offset_z)
 
         print(f"Faza 1 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
         move_servo({
@@ -217,18 +227,18 @@ def turn_right(stop_event=None, step_count=3, x_amp=30, z_amp=30, offset=10):
             return
                 
         # RF i LB w swing
-        coxaRF = 90 - offset - x_amp + i * (x_amp/step_count)
-        femurRF = 120 - z_amp * math.sin(i * math.pi / step_count)
+        coxaRF = 90 - offset_turn - x_amp + i * (x_amp/step_count)
+        femurRF = (90 + offset_z) - z_amp * math.sin(i * math.pi / step_count)
 
-        coxaLB = 90 - offset - x_amp + i * (x_amp/step_count)
-        femurLB = 120 - z_amp * math.sin(i * math.pi / step_count)
+        coxaLB = 90 - offset_turn - x_amp + i * (x_amp/step_count)
+        femurLB = (90 + offset_z) - z_amp * math.sin(i * math.pi / step_count)
 
         # LF i RB w stance
-        coxaLF = 90 + offset + x_amp - i * (x_amp/step_count)
-        femurLF = 60
+        coxaLF = 90 + offset_turn + x_amp - i * (x_amp/step_count)
+        femurLF = (90 - offset_z)
 
-        coxaRB = 90 + offset + x_amp - i * (x_amp/step_count)
-        femurRB = 60
+        coxaRB = 90 + offset_turn + x_amp - i * (x_amp/step_count)
+        femurRB = (90 - offset_z)
         
         print(f"Faza 2 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
         move_servo({
@@ -238,24 +248,24 @@ def turn_right(stop_event=None, step_count=3, x_amp=30, z_amp=30, offset=10):
             13: int(coxaRB), 14: int(femurRB)    # RB
         })
 
-def turn_left(stop_event=None, step_count=3, x_amp=30, z_amp=30, offset=10):
+def turn_left(stop_event=None):
     for i in range(step_count):
         if stop_event and stop_event.is_set():  # Sprawdź czy przerwać
             return
                 
         # LF i RB w swing
-        coxaLF = 90 + offset + x_amp - i * (x_amp/step_count)
-        femurLF = 60 + z_amp * math.sin(i * math.pi / step_count)
+        coxaLF = 90 + offset_turn + x_amp - i * (x_amp/step_count)
+        femurLF = (90 - offset_z) + z_amp * math.sin(i * math.pi / step_count)
 
-        coxaRB = 90 + offset + x_amp - i * (x_amp/step_count)
-        femurRB = 60 + z_amp * math.sin(i * math.pi / step_count)
+        coxaRB = 90 + offset_turn + x_amp - i * (x_amp/step_count)
+        femurRB = (90 - offset_z) + z_amp * math.sin(i * math.pi / step_count)
 
         # RF i LB w stance
-        coxaRF = 90 - offset - x_amp + i * (x_amp/step_count)
-        femurRF = 120
+        coxaRF = 90 - offset_turn - x_amp + i * (x_amp/step_count)
+        femurRF = (90 + offset_z)
 
-        coxaLB = 90 - offset - x_amp + i * (x_amp/step_count)
-        femurLB = 120
+        coxaLB = 90 - offset_turn - x_amp + i * (x_amp/step_count)
+        femurLB = (90 + offset_z)
 
         print(f"Faza 1 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
         move_servo({
@@ -270,18 +280,18 @@ def turn_left(stop_event=None, step_count=3, x_amp=30, z_amp=30, offset=10):
             return
                 
         # RF i LB w swing
-        coxaRF = 90 - offset - i * (x_amp/step_count)
-        femurRF = 120 - z_amp * math.sin(i * math.pi / step_count)
+        coxaRF = 90 - offset_turn - i * (x_amp/step_count)
+        femurRF = (90 + offset_z) - z_amp * math.sin(i * math.pi / step_count)
 
-        coxaLB = 90 - offset - i * (x_amp/step_count)
-        femurLB = 120 - z_amp * math.sin(i * math.pi / step_count)
+        coxaLB = 90 - offset_turn - i * (x_amp/step_count)
+        femurLB = (90 + offset_z) - z_amp * math.sin(i * math.pi / step_count)
 
         # LF i RB w stance
-        coxaLF = 90 + offset + i * (x_amp/step_count)
-        femurLF = 60
+        coxaLF = 90 + offset_turn + i * (x_amp/step_count)
+        femurLF = (90 - offset_z)
 
-        coxaRB = 90 + offset + i * (x_amp/step_count)
-        femurRB = 60
+        coxaRB = 90 + offset_turn + i * (x_amp/step_count)
+        femurRB = (90 - offset_z)
         
         print(f"Faza 2 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
         move_servo({
@@ -290,6 +300,11 @@ def turn_left(stop_event=None, step_count=3, x_amp=30, z_amp=30, offset=10):
             11: int(coxaLB), 12: int(femurLB),   # LB
             13: int(coxaRB), 14: int(femurRB)    # RB
         })
+
+
+
+
+
 
 
 

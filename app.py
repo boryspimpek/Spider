@@ -5,106 +5,91 @@ from main import walk_forward, walk_back, turn_right, turn_left, reset_to_initia
 
 app = Flask(__name__)
 
-walking_forward = False
-walking_backward = False
-turning_right = False
-turning_left = False
+# Stan aplikacji
+movement_states = {
+    'forward': False,
+    'backward': False,
+    'right': False,
+    'left': False
+}
 walk_stop_event = threading.Event()
 reset_in_progress = False
+
+# Mapowanie ruchów na funkcje
+movement_functions = {
+    'forward': walk_forward,
+    'backward': walk_back,
+    'right': turn_right,
+    'left': turn_left
+}
+
+# Szablon pętli ruchu
+def movement_loop(movement_type):
+    global reset_in_progress
+    movement_states[movement_type] = True
+    walk_stop_event.clear()
+    movement_func = movement_functions[movement_type]
+    
+    # Główna pętla ruchu
+    while movement_states[movement_type] and not walk_stop_event.is_set():
+        movement_func(walk_stop_event)
+    
+    # Oczekiwanie na zakończenie resetu
+    while reset_in_progress:
+        time.sleep(0.01)
+
+# Sprawdzanie czy jakikolwiek ruch jest aktywny
+def is_any_movement_active():
+    return any(movement_states.values())
+
+# Reset stanów ruchu
+def reset_movement_states():
+    for key in movement_states:
+        movement_states[key] = False
 
 # Obsługa strony głównej
 @app.route('/')
 def index():
     return render_template('index.html')
 
-def walk_forward_loop():
-    global walking_forward, reset_in_progress
-    walking_forward = True
-    walk_stop_event.clear()
-    
-    while walking_forward and not walk_stop_event.is_set():
-        walk_forward(walk_stop_event)
-    
-    while reset_in_progress:
-        time.sleep(0.01)
-
-def walk_back_loop():
-    global walking_backward, reset_in_progress
-    walking_backward = True
-    walk_stop_event.clear()
-    
-    while walking_backward and not walk_stop_event.is_set():
-        walk_back(walk_stop_event)
-    
-    while reset_in_progress:
-        time.sleep(0.01)
-
-def turn_right_loop():
-    global turning_right, reset_in_progress
-    turning_right = True
-    walk_stop_event.clear()
-    
-    while turning_right and not walk_stop_event.is_set():
-        turn_right(walk_stop_event)
-    
-    while reset_in_progress:
-        time.sleep(0.01)
-
-def turn_left_loop():
-    global turning_left, reset_in_progress
-    turning_left = True
-    walk_stop_event.clear()
-    
-    while turning_left and not walk_stop_event.is_set():
-        turn_left(walk_stop_event)
-    
-    while reset_in_progress:
-        time.sleep(0.01)
-
-# walk forward
+# Endpointy dla poszczególnych ruchów
 @app.route('/walkforward')
 def walkforward_start():
-    global walking_forward, walking_backward, turning_right, reset_in_progress
-    if not any([walking_forward, walking_backward, turning_right, turning_left]) and not reset_in_progress:
-        threading.Thread(target=walk_forward_loop).start()
+    global reset_in_progress
+    if not is_any_movement_active() and not reset_in_progress:
+        threading.Thread(target=movement_loop, args=('forward',)).start()
     return jsonify({'status': 'walk forward started'})
 
-# walk back
 @app.route('/walkback')
 def walkback_start():
-    global walking_forward, walking_backward, turning_right, reset_in_progress
-    if not any([walking_forward, walking_backward, turning_right, turning_left]) and not reset_in_progress:
-        threading.Thread(target=walk_back_loop).start()
+    global reset_in_progress
+    if not is_any_movement_active() and not reset_in_progress:
+        threading.Thread(target=movement_loop, args=('backward',)).start()
     return jsonify({'status': 'walk back started'})
 
-# turn right
 @app.route('/turnright')
 def turnright_start():
-    global walking_forward, walking_backward, turning_right, reset_in_progress
-    if not any([walking_forward, walking_backward, turning_right, turning_left]) and not reset_in_progress:
-        threading.Thread(target=turn_right_loop).start()
+    global reset_in_progress
+    if not is_any_movement_active() and not reset_in_progress:
+        threading.Thread(target=movement_loop, args=('right',)).start()
     return jsonify({'status': 'turn right started'})
 
-# turn left
 @app.route('/turnleft')
 def turnleft_start():
-    global walking_forward, walking_backward, turning_left, reset_in_progress
-    if not any([walking_forward, walking_backward, turning_left, turning_left]) and not reset_in_progress:
-        threading.Thread(target=turn_left_loop).start()
+    global reset_in_progress
+    if not is_any_movement_active() and not reset_in_progress:
+        threading.Thread(target=movement_loop, args=('left',)).start()
     return jsonify({'status': 'turn left started'})
 
-# stop all movements
+# Zatrzymanie wszystkich ruchów
 @app.route('/stopwalk')
 def stopwalk():
-    global walking_forward, walking_backward, turning_right, turning_left, reset_in_progress
+    global reset_in_progress
     
-    if not any([walking_forward, walking_backward, turning_right, turning_left]):
+    if not is_any_movement_active():
         return jsonify({'status': 'not moving'})
         
-    walking_forward = False
-    walking_backward = False
-    turning_right = False
-    turning_left = False
+    reset_movement_states()
     walk_stop_event.set()
     
     # Poczekaj chwilę na zakończenie aktualnej fazy ruchu
