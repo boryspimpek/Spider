@@ -20,20 +20,20 @@ initial_positions = {
 current_positions = initial_positions.copy()
 
 trimm = {
-    1: 3,
-    2: -5,
+    1: 8,
+    2: -6,
     3: 0,
-    4: -8,  
-    11: -10,
-    12: 2,
+    4: -12,  
+    11: 3,
+    12: 1,
     13: 0,
-    14: -5
+    14: -3
 }
 
 # Parametry chodzenia
 step_count=3
 x_amp=30
-z_amp=40
+z_amp=30
 offset_front=-5
 offset_back=15
 offset_turn=10
@@ -66,7 +66,7 @@ def set_servo(servos):
     finally:
         sock.close()
 
-def move_servo(end_pos, steps=2, delay=0.01, stop_event=None):
+def move_servo(end_pos, steps=2, delay=0.001, stop_event=None):
     global current_positions
     
     channels = end_pos.keys()
@@ -163,7 +163,7 @@ def walk_forward(stop_event=None):
         coxaLB = 90 - offset_back - i * (x_amp/step_count)
         femurLB = (90 + offset_z)
 
-        # print(f"Faza 1 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
+        print(f"Faza 1 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
         move_servo({
             1: int(coxaLF), 2: int(femurLF),     # LF
             3: int(coxaRF), 4: int(femurRF),     # RF
@@ -189,7 +189,7 @@ def walk_forward(stop_event=None):
         coxaRB = 90 + offset_back + i * (x_amp/step_count)
         femurRB = (90 - offset_z)
         
-        # print(f"Faza 2 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
+        print(f"Faza 2 - krok {i + 1}: coxaLF{coxaLF:.2f}, femurLF{femurLF:.2f} coxaRB{coxaRB:.2f}, femurRB{femurRB:.2f} | coxaRF{coxaRF:.2f}, femurRF{femurRF:.2f} coxaLB{coxaLB:.2f}, femurLB{femurLB:.2f}")
         move_servo({
             1: int(coxaLF), 2: int(femurLF),     # LF
             3: int(coxaRF), 4: int(femurRF),     # RF
