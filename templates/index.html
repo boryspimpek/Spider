@@ -63,6 +63,29 @@
             </div>
         </div>
     </div>
+    <div class="slider-container">
+    <h2 class="slider-title">Kontrola Wysokości (Wszystkie Nogi)</h2>
+    
+    <div class="slider-wrapper" id="sliderWrapper">
+        <div class="slider-track"></div>
+        <div class="slider-center-mark"></div>
+        <div class="slider-handle" id="sliderHandle"></div>
+        <div class="slider-labels">
+            <span>GÓRA</span>
+            <span>⚬</span>
+            <span>DÓŁ</span>
+        </div>
+    </div>
+    
+    <div class="slider-info">
+        <div class="slider-value">
+            Wartość: <span id="sliderValue">0.00</span>
+        </div>
+        <div class="slider-angle">
+            Kąt: <span id="sliderAngle">90</span>°
+        </div>
+    </div>
+</div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

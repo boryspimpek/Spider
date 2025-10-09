@@ -195,7 +195,131 @@ h1 {
     border: 1px solid rgba(0, 255, 65, 0.3);
 }
 
+/* Slider Container */
+.slider-container {
+    margin: 30px auto;
+    max-width: 300px;
+    text-align: center;
+}
 
+.slider-title {
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.slider-wrapper {
+    position: relative;
+    height: 250px;
+    width: 80px;
+    margin: 0 auto;
+    background: linear-gradient(180deg, #1a1a2e 0%, #0a0a0f 50%, #1a1a2e 100%);
+    border-radius: 40px;
+    border: 3px solid #00ff41;
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+    padding: 10px;
+}
+
+.slider-track {
+    position: absolute;
+    left: 50%;
+    top: 10px;
+    bottom: 10px;
+    width: 4px;
+    background: rgba(0, 255, 65, 0.2);
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+
+.slider-center-mark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 30px;
+    height: 2px;
+    background: rgba(0, 255, 65, 0.5);
+    transform: translate(-50%, -50%);
+}
+
+.slider-handle {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 50px;
+    height: 50px;
+    background: radial-gradient(circle at 30% 30%, #00ff41, #00aa2b);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: grab;
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.6);
+    transition: box-shadow 0.1s;
+    border: 3px solid #00ff41;
+    z-index: 10;
+    touch-action: none;
+}
+
+.slider-handle:active {
+    cursor: grabbing;
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.9);
+}
+
+.slider-handle::before {
+    content: '⬍';
+    position: absolute;
+    top: 3px;
+    left: 50%;
+    transform: translateX(-50%) rotate(90deg);
+    font-size: 20px;
+    color: #0a0a0f;
+    font-weight: bold;
+}
+
+.slider-handle::after {
+    content: '⬍';
+    position: absolute;
+    bottom: 3px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-90deg);
+    font-size: 20px;
+    color: #0a0a0f;
+    font-weight: bold;
+}
+
+.slider-labels {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 230px;
+    position: absolute;
+    right: -50px;
+    top: 10px;
+    font-family: 'Courier New', monospace;
+    color: rgba(0, 255, 65, 0.6);
+    font-size: 12px;
+}
+
+.slider-info {
+    margin-top: 20px;
+    font-family: 'Courier New', monospace;
+    color: #00ff41;
+    font-size: 16px;
+}
+
+.slider-value {
+    background: rgba(0, 255, 65, 0.1);
+    padding: 8px 20px;
+    border-radius: 5px;
+    border: 1px solid rgba(0, 255, 65, 0.3);
+    display: inline-block;
+    min-width: 100px;
+}
+
+.slider-angle {
+    margin-top: 10px;
+    font-size: 14px;
+    opacity: 0.7;
+}
 
 
 /* Responsywność dla urządzeń mobilnych */

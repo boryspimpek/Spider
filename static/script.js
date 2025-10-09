@@ -203,6 +203,170 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     })(); // Immediately invoke the joystick function
 
+    // Slider Control (Vertical)
+    (function() {
+        const wrapper = document.getElementById('sliderWrapper');
+        const handle = document.getElementById('sliderHandle');
+        const displayValue = document.getElementById('sliderValue');
+        const displayAngle = document.getElementById('sliderAngle');
+        
+        let isDragging = false;
+        let centerY, maxDistance;
+        let currentY = 0;
+        let sendTimeout = null;
+        let releaseTimeout = null;
+        
+        const MAX_ANGLE_CHANGE = 30; // Maksymalna zmiana kąta (+/- od 90°)
+        
+        function init() {
+            const rect = wrapper.getBoundingClientRect();
+            centerY = rect.height / 2;
+            maxDistance = (rect.height / 2) - 35; // Odległość od środka minus margines
+        }
+        
+        function updateHandlePosition(y) {
+            handle.style.top = `${centerY + y}px`;
+            handle.style.transform = 'translate(-50%, -50%)';
+        }
+        
+        function normalizeValue(y) {
+            // Normalizuj do zakresu -1 do 1
+            // y dodatnie = dół (wartość ujemna), y ujemne = góra (wartość dodatnia)
+            return Math.max(-1, Math.min(1, -y / maxDistance));
+        }
+        
+        function valueToAngle(value) {
+            // value: -1 do 1
+            // -1 = 120°, 0 = 90°, 1 = 60°
+            return Math.round(90 - (value * MAX_ANGLE_CHANGE));
+        }
+        
+        let lastSendTime = 0;
+        const SEND_INTERVAL = 100; // Wysyłaj co 100ms (tak jak joystick)
+        
+        function sendSliderData(value) {
+            const now = Date.now();
+            
+            // Wysyłaj tylko jeśli minęło odpowiednio dużo czasu
+            if (now - lastSendTime < SEND_INTERVAL) {
+                return;
+            }
+            
+            lastSendTime = now;
+            
+            fetch('/slider', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ value })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // console.log('Slider OK:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Slider error:', error);
+            });
+        }
+        
+        function returnToCenter() {
+            // Czekaj 500ms po puszczeniu przed powrotem
+            releaseTimeout = setTimeout(() => {
+                currentY = 0;
+                handle.style.transition = 'top 0.4s ease-out';
+                updateHandlePosition(0);
+                
+                // Wyślij pozycję neutralną
+                sendSliderData(0);
+                
+                // Zaktualizuj wyświetlanie
+                displayValue.textContent = '0.00';
+                displayAngle.textContent = '90';
+                
+                setTimeout(() => {
+                    handle.style.transition = '';
+                }, 400);
+            }, 500);
+        }
+        
+        function startDragging(e) {
+            isDragging = true;
+            handle.style.cursor = 'grabbing';
+            init();
+            
+            // Anuluj powrót do środka
+            if (releaseTimeout) {
+                clearTimeout(releaseTimeout);
+                releaseTimeout = null;
+            }
+            
+            e.preventDefault();
+        }
+        
+        function stopDragging() {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            handle.style.cursor = 'grab';
+            
+            // Rozpocznij powrót do środka
+            returnToCenter();
+        }
+        
+        function onMove(clientY) {
+            if (!isDragging) return;
+            
+            const rect = wrapper.getBoundingClientRect();
+            let y = clientY - rect.top - centerY;
+            
+            // Ogranicz do zakresu
+            if (Math.abs(y) > maxDistance) {
+                y = y > 0 ? maxDistance : -maxDistance;
+            }
+            
+            currentY = y;
+            updateHandlePosition(y);
+            
+            // Zaktualizuj wyświetlanie
+            const normalized = normalizeValue(y);
+            const angle = valueToAngle(normalized);
+            
+            displayValue.textContent = normalized.toFixed(2);
+            displayAngle.textContent = angle;
+            
+            // Wyślij dane
+            sendSliderData(normalized);
+        }
+        
+        // Event listeners - mysz
+        handle.addEventListener('mousedown', startDragging);
+        document.addEventListener('mouseup', stopDragging);
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                onMove(e.clientY);
+            }
+        });
+        
+        // Event listeners - dotyk
+        handle.addEventListener('touchstart', (e) => {
+            startDragging(e);
+        });
+        document.addEventListener('touchend', stopDragging);
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging && e.touches.length > 0) {
+                onMove(e.touches[0].clientY);
+                e.preventDefault();
+            }
+        });
+        
+    })();
+
     // Udostępnij funkcję sendCommand globalnie dla innych przycisków
     window.sendCommand = sendCommand;
+
+
+
 });

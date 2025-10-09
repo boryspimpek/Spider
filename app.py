@@ -1,7 +1,7 @@
 import time
 from flask import Flask, render_template, jsonify, request
 import threading
-from main import walk_forward, walk_back, turn_right, turn_left, set_femur_from_joystick, reset_to_initial
+from main import walk_forward, walk_back, turn_right, turn_left, set_femur_from_joystick, set_all_femur_from_slider, reset_to_initial
 
 app = Flask(__name__)
 
@@ -132,6 +132,32 @@ def joystick_control():
             'message': f'Błąd joysticka: {str(e)}'
         }), 500
 
-
+@app.route('/slider', methods=['POST'])
+def slider_control():
+    """
+    Endpoint do kontroli wszystkich femur jednocześnie przez slider.
+    Oczekuje JSON z polem: value (wartość od -1 do 1, gdzie 0 to środek/90°)
+    """
+    try:
+        data = request.get_json()
+        value = float(data.get('value', 0))
+        
+        # Opcjonalnie: maksymalna zmiana kąta
+        max_angle = int(data.get('max_angle', 30))
+        
+        # Wywołaj funkcję z main.py
+        set_all_femur_from_slider(value, max_angle_change=max_angle)
+        
+        return jsonify({
+            'status': 'success',
+            'value': value,
+            'message': f'Slider: {value:.2f}'
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'Błąd slidera: {str(e)}'
+        }), 500
+    
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

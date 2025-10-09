@@ -304,37 +304,29 @@ def turn_left(stop_event=None):
         })
 
 def set_femur_from_joystick(x, y, max_angle_change=30):
-    """
-    Ustawia kąty femur na podstawie wartości joysticka.
-    x, y: wartości od -1 do 1
-    max_angle_change: maksymalna zmiana kąta w stopniach
-    """
-    # Skalowanie wartości joysticka do zakresu kątów
     angle_x = y * max_angle_change # odwrócone osie y dla naturalnego ruchu
     angle_y = x * max_angle_change
 
     # Oblicz nowe kąty femur łącząc obie osie
-    new_femur_LF = int(90 - angle_y - angle_x)  # Lewy przód: y (przód/tył) + x (lewo/prawo)
-    new_femur_RF = int(90 - angle_y + angle_x)  # Prawy przód: y (przód/tył) + x (prawo/lewo)
-    new_femur_LB = int(90 + angle_y - angle_x)  # Lewy tył: y (tył/przód) + x (lewo/prawo)
-    new_femur_RB = int(90 + angle_y + angle_x)  # Prawy tył: y (tył/przód) + x (prawo/lewo)
-
-    # Ogranicz kąty do bezpiecznego zakresu (np. 30-150 stopni)
-    new_femur_LF = max(30, min(150, new_femur_LF))
-    new_femur_RF = max(30, min(150, new_femur_RF))
-    new_femur_LB = max(30, min(150, new_femur_LB))
-    new_femur_RB = max(30, min(150, new_femur_RB))
-
+    femur_angles = {
+        2: int(60 - angle_y - angle_x),  # Lewy przód: y (przód/tył) + x (lewo/prawo)
+        4 : int(120 - angle_y + angle_x),  # Prawy przód: y (przód/tył) + x (prawo/lewo)
+        12 : int(120 + angle_y - angle_x),  # Lewy tył: y (tył/przód) + x (lewo/prawo)
+        14 : int(60 + angle_y + angle_x)  # Prawy tył: y (tył/przód) + x (prawo/lewo)
+    }
     # Ustaw nowe pozycje femur
-    move_servo({
-        2: new_femur_LF,
-        4: new_femur_RF,
-        12: new_femur_LB,
-        14: new_femur_RB
-    }, steps=2, delay=0.02)
+    move_servo(femur_angles, steps=2, delay=0.02)
 
 
-
+def set_all_femur_from_slider(value, max_angle_change=30):
+    angle_offset = -value * max_angle_change     # value od -1 do 1, więc odwracamy znak żeby góra zmniejszała kąt
+    femur_angles = {
+        2: int(60 + angle_offset),   # LF femur
+        4: int(120 - angle_offset),   # RF femur
+        12: int(120 - angle_offset),  # LB femur
+        14: int(60 + angle_offset)   # RB femur
+    }
+    move_servo(femur_angles, steps=2, delay=0.02)
 
 
 
