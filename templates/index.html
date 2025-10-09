@@ -4,88 +4,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Otto Robot Controller</title>
+    <title>Spider Robot Controller</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Dodatkowe style dla układu pionowego */
+        .vertical-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .section-title {
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        /* Style dla ikon strzałek */
+        .arrow-btn {
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+        }
+        
+        .arrow-up::before { content: "↑"; }
+        .arrow-down::before { content: "↓"; }
+        .arrow-left::before { content: "←"; }
+        .arrow-right::before { content: "→"; }
+    </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>Otto Robot Control</h1>
-
-        <!-- Row 1 -->
-        <div class="button-row">
-            <button class="robot-btn empty-slot"></button> <!-- empty slot -->
-            <button class="robot-btn" id="walk forward">Walk Forward</button>
-            <button class="robot-btn empty-slot"></button> <!-- empty slot -->
-        </div>
-
-        <!-- Row 2 -->
-        <div class="button-row">
-            <button class="robot-btn" id="turn left">Turn Left</button>
-            <button class="robot-btn" id="walk back">Walk Back</button>
-            <button class="robot-btn" id="turn right">Turn Right</button>
-        </div>
-
-        <!-- Row 3 -->
-        <div class="button-row">
-            <button class="robot-btn" onclick="sendCommand('func5')">button</button>
-            <button class="robot-btn" onclick="sendCommand('func6')">button</button>
-            <button class="robot-btn" onclick="sendCommand('func7')">button</button>
-            <button class="robot-btn" onclick="sendCommand('func8')">button</button>
-        </div>
-
-        <!-- Row 4 -->
-        <div class="button-row">
-            <button class="robot-btn empty-slot"></button> <!-- empty slot -->
-            <button class="robot-btn" onclick="sendCommand('func9')">button</button>
-            <button class="robot-btn empty-slot"></button> <!-- empty slot -->
-        </div>
-
-        <!-- Status feedback -->
-        <div id="status" class="status-message"></div>
-    </div>
-    <div class="joystick-container">
-        <h2 style="color: #00ff41; font-family: 'Courier New', monospace;">
-            🕹️ Kontrola Femur
-        </h2>
-
-        <div class="joystick-wrapper" id="joystickWrapper">
-            <div class="joystick-base">
-                <div class="joystick-crosshair"></div>
+    <div class="vertical-layout">
+        <!-- Sekcja 1: Buttony -->
+        <div class="section">
+            <h1 class="section-title">Spider Robot Control</h1>
+            
+            <!-- Row 1 -->
+            <div class="button-row">
+                <button class="robot-btn empty-slot"></button> <!-- empty slot -->
+                <button class="robot-btn arrow-btn arrow-up" id="walk forward" title="Walk Forward"></button>
+                <button class="robot-btn empty-slot"></button> <!-- empty slot -->
             </div>
-            <div class="joystick-handle" id="joystickHandle"></div>
+
+            <!-- Row 2 -->
+            <div class="button-row">
+                <button class="robot-btn arrow-btn arrow-left" id="turn left" title="Turn Left"></button>
+                <button class="robot-btn arrow-btn arrow-down" id="walk back" title="Walk Back"></button>
+                <button class="robot-btn arrow-btn arrow-right" id="turn right" title="Turn Right"></button>
+            </div>
+
+            <!-- Row 3 -->
+            <div class="button-row">
+                <button class="robot-btn" onclick="sendCommand('func5')">button</button>
+                <button class="robot-btn" onclick="sendCommand('func6')">button</button>
+                <button class="robot-btn" onclick="sendCommand('func7')">button</button>
+            </div>
+
+            <!-- Status feedback -->
+            <div id="status" class="status-message"></div>
         </div>
 
-        <div class="joystick-info">
-            <div class="joystick-coords">
-                <div class="coord">X: <span id="joystickX">0.00</span></div>
-                <div class="coord">Y: <span id="joystickY">0.00</span></div>
+        <!-- Sekcja 2: Joystick -->
+        <div class="section">
+            <h2 class="section-title">Femur play</h2>
+
+            <div class="joystick-wrapper" id="joystickWrapper">
+                <div class="joystick-base">
+                    <div class="joystick-crosshair"></div>
+                </div>
+                <div class="joystick-handle" id="joystickHandle"></div>
+            </div>
+
+            <div class="joystick-info">
+                <div class="joystick-coords">
+                    <div class="coord">X: <span id="joystickX">0.00</span></div>
+                    <div class="coord">Y: <span id="joystickY">0.00</span></div>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="slider-container">
-    <h2 class="slider-title">Kontrola Wysokości (Wszystkie Nogi)</h2>
-    
-    <div class="slider-wrapper" id="sliderWrapper">
-        <div class="slider-track"></div>
-        <div class="slider-center-mark"></div>
-        <div class="slider-handle" id="sliderHandle"></div>
-        <div class="slider-labels">
-            <span>GÓRA</span>
-            <span>⚬</span>
-            <span>DÓŁ</span>
+
+        <!-- Sekcja 3: Slider -->
+        <div class="section">
+            <h2 class="section-title">Height set</h2>
+            
+            <div class="slider-wrapper" id="sliderWrapper">
+                <div class="slider-track"></div>
+                <div class="slider-center-mark"></div>
+                <div class="slider-handle" id="sliderHandle"></div>
+                <div class="slider-labels">
+                    <span>GÓRA</span>
+                    <span>⚬</span>
+                    <span>DÓŁ</span>
+                </div>
+            </div>
+            
+            <div class="slider-info">
+                <div class="slider-value">
+                    Wartość: <span id="sliderValue">0.00</span>
+                </div>
+                <div class="slider-angle">
+                    Kąt: <span id="sliderAngle">90</span>°
+                </div>
+            </div>
         </div>
     </div>
-    
-    <div class="slider-info">
-        <div class="slider-value">
-            Wartość: <span id="sliderValue">0.00</span>
-        </div>
-        <div class="slider-angle">
-            Kąt: <span id="sliderAngle">90</span>°
-        </div>
-    </div>
-</div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

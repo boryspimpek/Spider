@@ -9,10 +9,10 @@ ESP_PORT = 8888
 
 # Pozycje początkowe serw
 initial_positions = {
-    1: 85, 2: 60, 
+    1: 115, 2: 60, 
     3: 65, 4: 120,
-    11: 75, 12: 120, 
-    13: 135, 14: 60
+    11: 65, 12: 120, 
+    13: 115, 14: 60
     
 }
 
@@ -66,7 +66,7 @@ def set_servo(servos):
     finally:
         sock.close()
 
-def move_servo(end_pos, steps=4, delay=0.01, stop_event=None):
+def move_servo(end_pos, steps=2, delay=0.01, stop_event=None):
     global current_positions
     
     channels = end_pos.keys()
