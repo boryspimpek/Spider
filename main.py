@@ -160,16 +160,16 @@ class Kame:
                 if side == 0:
                     positions[2] = 90 + self.osc[1].output
                     positions[14] = 90 + self.osc[7].output
-                    positions[4] = 90 + 2 * z_amp
-                    positions[12] = 90 + 2 * z_amp
+                    positions[4] = 120
+                    positions[12] = 120
                 else:
                     positions[4] = 90 - self.osc[3].output
                     positions[12] = 90 - self.osc[5].output
-                    positions[2] = 90 - 2 * z_amp
-                    positions[14] = 90 - 2 * z_amp
+                    positions[2] = 60
+                    positions[14] = 60
 
 
-                print(f"Pozycje serw: { {k: round(v) for k, v in positions.items()} }")   
+                # print(f"Pozycje serw: { {k: round(v) for k, v in positions.items()} }")   
                 # plotter.update_plot(positions)   
                 self.set_servo(positions)
                 time.sleep(0.01)
@@ -222,13 +222,13 @@ class Kame:
                 if side == 0:
                     positions[2] = 90 + self.osc[1].output
                     positions[14] = 90 + self.osc[7].output
-                    positions[4] = 90 + 2 * z_amp
-                    positions[12] = 90 + 2 * z_amp
+                    positions[4] = 120
+                    positions[12] = 120
                 else:
                     positions[4] = 90 - self.osc[3].output
                     positions[12] = 90 - self.osc[5].output
-                    positions[2] = 90 - 2 * z_amp
-                    positions[14] = 90 - 2 * z_amp
+                    positions[2] = 60
+                    positions[14] = 60
 
 
                 print(f"Pozycje serw: { {k: round(v) for k, v in positions.items()} }")   
@@ -284,13 +284,13 @@ class Kame:
                 if side == 0:
                     positions[2] = 90 + self.osc[1].output
                     positions[14] = 90 + self.osc[7].output
-                    positions[4] = 90 + 2 * z_amp
-                    positions[12] = 90 + 2 * z_amp
+                    positions[4] = 120
+                    positions[12] = 120
                 else:
                     positions[4] = 90 - self.osc[3].output
                     positions[12] = 90 - self.osc[5].output
-                    positions[2] = 90 - 2 * z_amp
-                    positions[14] = 90 - 2 * z_amp
+                    positions[2] = 60
+                    positions[14] = 60
 
 
                 print(f"Pozycje serw: { {k: round(v) for k, v in positions.items()} }")   
@@ -346,11 +346,11 @@ class Kame:
                 if side == 0:
                     positions[2] = 90 + self.osc[1].output
                     positions[14] = 90 + self.osc[7].output
-                    positions[4] = 90 + 2 * z_amp
-                    positions[12] = 90 + 2 * z_amp
+                    positions[4] = 120
+                    positions[12] = 120
                 else:
-                    positions[2] = 90 - 2 * z_amp
-                    positions[14] = 90 - 2 * z_amp
+                    positions[2] = 60
+                    positions[14] = 60
                     positions[4] = 90 - self.osc[3].output
                     positions[12] = 90 - self.osc[5].output
 
@@ -364,23 +364,40 @@ class Kame:
                 print(f"Błąd podczas chodzenia: {e}")
                 break
 
-    def dance(self, steps=4, T=2000):
-        x_amp = 0  # brak ruchu w przód/tył
-        z_amp = 15
-        front_x = 0
-        back_x = 0
-        high_z = -15
+    def dance(self, steps=2, T=2000):
+        front_x = 30
+        back_x = 30
 
-        period = [T, T, T, T, T, T, T, T]
-        amplitude = [x_amp, z_amp, x_amp, z_amp, x_amp, z_amp, x_amp, z_amp]
-        offset = [front_x, high_z, front_x, high_z, back_x, high_z, back_x, high_z]
-        phase = [90, 0, 90, 270, 90, 90, 90, 180]
+        kame.move_servo({
+            1: 90 + front_x,   
+            2: 60,             
+            3: 90 - front_x,             
+            4: 120,             
+            11: 90 - back_x,   
+            12: 120,            
+            13: 90 + back_x,   
+            14: 60             
+        }, steps=10, delay=0.02)
 
-        for i in range(8):
-            self.osc[i].period = period[i]
-            self.osc[i].amplitude = amplitude[i]
-            self.osc[i].phase = phase[i]
-            self.osc[i].offset = offset[i]
+        self.osc[1].period = T
+        self.osc[1].amplitude = 15
+        self.osc[1].phase = 180    
+        self.osc[1].offset = 15
+
+        self.osc[3].period = T
+        self.osc[3].amplitude = 15
+        self.osc[3].phase = 90   
+        self.osc[3].offset = 15
+
+        self.osc[5].period = T
+        self.osc[5].amplitude = 15
+        self.osc[5].phase = 270     
+        self.osc[5].offset = 15
+
+        self.osc[7].period = T
+        self.osc[7].amplitude = 15
+        self.osc[7].phase = 0     
+        self.osc[7].offset = 15
 
         init_ref = time.time() * 1000
         final_time = init_ref + (T * steps)
@@ -390,22 +407,24 @@ class Kame:
 
         while (time.time() * 1000) < final_time:
             try:
-                for i in range(8):
-                    self.osc[i].refresh()
+                self.osc[1].refresh()
+                self.osc[3].refresh()
+                self.osc[5].refresh()
+                self.osc[7].refresh()
 
                 positions = {}
 
-                positions[1] = 90 
-                positions[3] = 90 
-                positions[11] = 90  
-                positions[13] = 90 
+                positions[1] = 90 + front_x 
+                positions[3] = 90 - front_x 
+                positions[11] = 90 - back_x  
+                positions[13] = 90 + back_x 
 
                 positions[2] = 90 + self.osc[1].output
                 positions[4] = 90 - self.osc[3].output
                 positions[12] = 90 - self.osc[5].output
                 positions[14] = 90 + self.osc[7].output
 
-                self.set_servo(positions)        
+                # self.set_servo(positions)        
                 plotter.update_plot(positions)   
                 time.sleep(0.01)
 
@@ -413,6 +432,163 @@ class Kame:
                 print(f"Błąd podczas tańca: {e}")
                 break
 
+    def updown(self, steps=4, T=2000):
+        front_x = 30
+        back_x = 30
+
+        kame.move_servo({
+            1: 90 + front_x,   
+            2: 60,             
+            3: 90 - front_x,             
+            4: 120,             
+            11: 90 - back_x,   
+            12: 120,            
+            13: 90 + back_x,   
+            14: 60             
+        }, steps=10, delay=0.02)
+
+        for osc_id in [1, 3, 5, 7]:
+            osc = self.osc[osc_id]
+            osc.period = T
+            osc.amplitude = 15
+            osc.phase = 90
+            osc.offset = 15
+
+        init_ref = time.time() * 1000
+        final_time = init_ref + (T * steps)
+
+        for osc in self.osc:
+            osc.ref_time = init_ref
+
+        while (time.time() * 1000) < final_time:
+            try:
+                self.osc[1].refresh()
+                self.osc[3].refresh()
+                self.osc[5].refresh()
+                self.osc[7].refresh()
+
+                positions = {}
+
+                positions[1] = 90 + front_x 
+                positions[3] = 90 - front_x 
+                positions[11] = 90 - back_x  
+                positions[13] = 90 + back_x 
+
+                positions[2] = 90 + self.osc[1].output
+                positions[4] = 90 - self.osc[3].output
+                positions[12] = 90 - self.osc[5].output
+                positions[14] = 90 + self.osc[7].output
+
+                self.set_servo(positions)        
+                # plotter.update_plot(positions)   
+                time.sleep(0.01)
+
+            except Exception as e:
+                print(f"Błąd podczas tańca: {e}")
+                break
+
+    def pushup(self, steps=4, T=2000):
+        front_x = 30
+        back_x = 30
+
+        kame.move_servo({
+            1: 90 + front_x,   
+            2: 60,             
+            3: 90 - front_x,             
+            4: 120,             
+            11: 90 - back_x,   
+            12: 120,            
+            13: 90 + back_x,   
+            14: 60             
+        }, steps=10, delay=0.02)
+
+        for osc_id in [1, 3]:
+            osc = self.osc[osc_id]
+            osc.period = T
+            osc.amplitude = 15
+            osc.phase = 90
+            osc.offset = 15
+
+        init_ref = time.time() * 1000
+        final_time = init_ref + (T * steps)
+
+        for osc in self.osc:
+            osc.ref_time = init_ref
+
+        while (time.time() * 1000) < final_time:
+            try:
+                self.osc[1].refresh()
+                self.osc[3].refresh()
+
+                positions = {}
+
+                positions[1] = 90 + front_x 
+                positions[3] = 90 - front_x 
+                positions[11] = 90 - back_x  
+                positions[13] = 90 + back_x 
+
+                positions[2] = 90 + self.osc[1].output
+                positions[4] = 90 - self.osc[3].output
+                positions[12] = 120
+                positions[14] = 60
+
+                self.set_servo(positions)        
+                # plotter.update_plot(positions)   
+                time.sleep(0.01)
+
+            except Exception as e:
+                print(f"Błąd podczas tańca: {e}")
+                break
+
+    def hello(self, steps=1, T=2000):
+        front_x = 15
+        back_x = 10
+
+        kame.move_servo({
+            1: 90 + front_x,   
+            2: 60,             
+            3: 90,             
+            4: 90,             
+            11: 90 + back_x,   
+            12: 90,            
+            13: 90 - back_x,   
+            14: 90             
+        }, steps=10, delay=0.02)
+
+        self.osc[2].period = T
+        self.osc[2].amplitude = 15
+        self.osc[2].phase = 90
+        self.osc[2].offset = 15
+
+        init_ref = time.time() * 1000
+        final_time = init_ref + (T * steps)
+
+        for osc in self.osc:
+            osc.ref_time = init_ref
+
+        while (time.time() * 1000) < final_time:
+            try:
+                self.osc[2].refresh()
+
+                positions = {}
+                
+                positions[1] = 90 + front_x      
+                positions[2] = 60                 
+                positions[3] = 90 - self.osc[2].output  
+                positions[4] = 90               
+                
+                positions[11] = 90 + back_x     
+                positions[12] = 90              
+                positions[13] = 90 - back_x     
+                positions[14] = 90              
+
+                self.set_servo(positions)        
+                # plotter.update_plot(positions)   
+                time.sleep(0.01)
+
+            except Exception as e:
+                print(f"Błąd podczas machania: {e}")
+                break
 
     def set_femur_from_joystick(self, x, y, max_angle_change=30):
         angle_x = y * max_angle_change # odwrócone osie y dla naturalnego ruchu
@@ -452,7 +628,7 @@ class Kame:
 
 
 kame = Kame()
-plotter = ServoPlotter(show_servos=[2, 4, 12, 14])  # Pokaż tylko serwa ud
+plotter = ServoPlotter(show_servos=[1, 2, 3, 4, 11, 12, 13, 14])  # Pokaż tylko serwa ud
 
 kame.dance()
 plt.show()
