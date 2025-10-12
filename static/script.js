@@ -35,9 +35,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Obsługa przycisku walk back (touch/hold)
     const walkBackBtn = document.getElementById('walk back');
     if (walkBackBtn) {
-        walkBackBtn.addEventListener('mousedown', () => sendRequest('/walkback'));
+        walkBackBtn.addEventListener('mousedown', () => sendRequest('/walkbackward'));
         walkBackBtn.addEventListener('mouseup', () => sendRequest('/stopwalk'));
-        walkBackBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('/walkback');});
+        walkBackBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('/walkbackward');});
         walkBackBtn.addEventListener('touchend', (e) => {e.preventDefault();sendRequest('/stopwalk');});
     }
 

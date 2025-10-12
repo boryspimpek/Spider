@@ -32,6 +32,26 @@ def walk_backward_continuous():
         if stop_walking:
             break
 
+def turn_left_continuous():
+    """Funkcja do ciągłego skręcania w lewo w osobnym wątku"""
+    global stop_walking
+    stop_walking = False
+    
+    while not stop_walking:
+        kame.turn_left(steps=1, T=2000)  # Jeden krok skrętu na raz
+        if stop_walking:
+            break
+
+def turn_right_continuous():
+    """Funkcja do ciągłego skręcania w prawo w osobnym wątku"""
+    global stop_walking
+    stop_walking = False
+    
+    while not stop_walking:
+        kame.turn_right(steps=1, T=2000)  # Jeden krok skrętu na raz
+        if stop_walking:
+            break
+
 def stop_walk():
     """Zatrzymanie chodzenia"""
     global stop_walking, walking_thread
@@ -159,13 +179,19 @@ def stop_walk_endpoint():
             'message': f'Błąd zatrzymywania: {str(e)}'
         }), 500
 
-# Opcjonalnie: Dodatkowe komendy dla innych kierunków
 @app.route('/turnleft')
 def turn_left():
     """Wykonaj skręt w lewo"""
     try:
-        kame.turn_left(steps=2, T=1000)  # Dwa kroki dla skrętu
-        
+        global walking_thread, stop_walking
+        # Zatrzymaj poprzednie chodzenie jeśli trwa
+        stop_walk()
+
+        # Ustaw flage i uruchom nowy wątek
+        stop_walking = False
+        walking_thread = threading.Thread(target=turn_left_continuous)
+        walking_thread.daemon = True    
+        walking_thread.start()
         return jsonify({
             'status': 'turning_left',
             'message': 'Wykonano skręt w lewo'
@@ -180,8 +206,15 @@ def turn_left():
 def turn_right():
     """Wykonaj skręt w prawo"""
     try:
-        kame.turn_right(steps=2, T=1000)  # Dwa kroki dla skrętu
-        
+        global walking_thread, stop_walking
+        # Zatrzymaj poprzednie chodzenie jeśli trwa
+        stop_walk()
+
+        # Ustaw flage i uruchom nowy wątek
+        stop_walking = False
+        walking_thread = threading.Thread(target=turn_right_continuous)
+        walking_thread.daemon = True    
+        walking_thread.start()
         return jsonify({
             'status': 'turning_right',
             'message': 'Wykonano skręt w prawo'
@@ -191,6 +224,7 @@ def turn_right():
             'status': 'error',
             'message': f'Błąd skrętu: {str(e)}'
         }), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
