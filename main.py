@@ -299,7 +299,7 @@ class Kame:
 
         period = [T, T, T, T, T, T, T, T]
         amplitude = [x_amp, z_amp, x_amp, z_amp, x_amp, 0, x_amp, 0]
-        offset = [90 + front_x, 90 + high_z, 90 - front_x, 90 - high_z, 90 - back_x, 90 + 30, 90 + back_x, 90 - 30]
+        offset = [90 + front_x, 90 + high_z, 90 - front_x, 90 - high_z, 90 - back_x, 120, 90 + back_x, 60]
         phase = [0, 270, 0, 90, 0, 0, 0, 0]
 
         self.prepare_move(amplitude, offset, phase)
@@ -312,57 +312,18 @@ class Kame:
         self.set_neutral()
 
     def hello(self, steps=2, T=1000):
-        front_x = 15
-        back_x = 10
+        period = [T, T, T, T, T, T, T, T]
+        amplitude = [0, 0, 15, 0, 0, 0, 0, 0]
+        offset = [100, 60, 75, 90, 100, 90, 80, 90]
+        phase = [0, 0, 270, 0, 0, 0, 0, 0]
 
-        self.move_servo({
-            1: 90 + front_x,   
-            2: 60,             
-            3: 75,             
-            4: 90,             
-            11: 90 + back_x,   
-            12: 90,            
-            13: 90 - back_x,   
-            14: 90             
-        }, steps=10, delay=0.02)
+        self.prepare_move(amplitude, offset, phase)
+        time.sleep(0.2)
 
-        time.sleep(0.5)
+        self._configure_oscillators(period, amplitude, offset, phase)
+        self._execute_movement(steps, T)
+        time.sleep(0.2)
 
-        self.osc[2].period = T
-        self.osc[2].amplitude = 15
-        self.osc[2].phase = 270
-        self.osc[2].offset = 30
-
-        init_ref = time.time() * 1000
-        final_time = init_ref + (T * steps)
-
-        for osc in self.osc:
-            osc.ref_time = init_ref
-
-        while (time.time() * 1000) < final_time:
-            try:
-                self.osc[2].refresh()
-
-                positions = {}
-                
-                positions[1] = 90 + front_x      
-                positions[2] = 60                 
-                positions[3] = 90 - self.osc[2].output  
-                positions[4] = 90               
-                
-                positions[11] = 90 + back_x     
-                positions[12] = 90              
-                positions[13] = 90 - back_x     
-                positions[14] = 90              
-
-                self.set_servo(positions)        
-                # plotter.update_plot(positions)   
-                time.sleep(0.01)
-
-            except Exception as e:
-                print(f"Błąd podczas machania: {e}")
-                break
-        
         self.set_neutral()
 
     def set_femur_from_joystick(self, x, y, max_angle_change=30):
@@ -406,11 +367,11 @@ class Kame:
 # # plotter = ServoPlotter(show_servos=[2, 4, 12, 14])  
 # # plotter = ServoPlotter(show_servos=[1, 3, 11, 13])  
 # # # plotter = ServoPlotter(show_servos=[1, 2, 3, 4, 11, 12, 13, 14])  
-# plotter = ServoPlotter(show_servos=[3, 4])  
+# plotter = ServoPlotter(show_servos=[1, 2, 3, 4])  
 # # # plotter = ServoPlotter(show_servos=[11, 13])  
 # # # plotter = ServoPlotter(show_servos=[2, 4])  
 # # # plotter = ServoPlotter(show_servos=[12, 14])  
 
 
-# kame.move("forward", steps=2, T=2000)
+# kame.frontback()
 # plt.show()
