@@ -11,10 +11,10 @@ from collections import defaultdict
 ESP_IP = "192.168.4.1"
 ESP_PORT = 8888
 SERVO_PINS = [1, 3, 2, 4, 11, 13, 12, 14]
-initial_positions = {1: 90, 2: 90, 3: 90, 4: 90, 11: 90, 12: 90, 13: 90, 14: 90}
+neutral_positions = {1: 120, 2: 60, 3: 60, 4: 120, 11: 60, 12: 120, 13: 120, 14: 60}
 trimm = {1: 8, 2: -6, 3: 0, 4: -12, 11: 3, 12: 1, 13: 0, 14: -3}
 
-current_positions = initial_positions.copy()
+current_positions = neutral_positions.copy()
 
 
 class ServoPlotter:
@@ -66,7 +66,7 @@ class ServoPlotter:
 class Kame:
     def __init__(self, name='kame'):
         self._name = name
-        self._stop_event = threading.Event()
+        # self._stop_event = threading.Event()
         
         self.osc = [Oscillator() for _ in range(8)]
         
@@ -74,7 +74,7 @@ class Kame:
         for osc in self.osc:
             osc.ref_time = ref_time
             
-        # self.set_neutral_position()
+        self.set_neutral()
     
     def set_servo(self, servos):
         global current_positions
@@ -101,7 +101,7 @@ class Kame:
         global current_positions
         
         channels = end_pos.keys()
-        start_pos = {ch: current_positions.get(ch, initial_positions[ch]) for ch in channels}
+        start_pos = {ch: current_positions.get(ch, neutral_positions[ch]) for ch in channels}
         
         for step in range(1, steps + 1):
             intermediate = {}
@@ -152,8 +152,8 @@ class Kame:
                 print(f"Błąd podczas ruchu: {e}")
                 break
 
-    def reset_to_initial(self):
-        self.move_servo(initial_positions)
+    def set_neutral(self):
+        self.move_servo(neutral_positions)
 
     def move(self, direction="forward", steps=4, T=2000):
         x_amp = 15
@@ -179,6 +179,52 @@ class Kame:
         else:
             print(f"Nieznany kierunek: {direction}")
             return
+        
+        direction_starts = {
+            "forward": {
+                1: 90 - front_x - x_amp,
+                3: 90 + front_x - x_amp,
+                11: 90 + back_x + x_amp,
+                13: 90 - back_x + x_amp,
+                2: 60,
+                4: 120,
+                12: 120,
+                14: 60,
+            },
+            "backward": {
+                1: 90 - front_x + x_amp,
+                3: 90 + front_x + x_amp,
+                11: 90 + back_x - x_amp,
+                13: 90 - back_x - x_amp,
+                2: 60,
+                4: 120,
+                12: 120,
+                14: 60,
+            },
+            "left": {
+                1: 90 - front_x + x_amp,
+                3: 90 + front_x - x_amp,
+                11: 90 + back_x - x_amp,
+                13: 90 - back_x + x_amp,
+                2: 60,
+                4: 120,
+                12: 120,
+                14: 60,
+            },
+            "right": {
+                1: 90 - front_x - x_amp,
+                3: 90 + front_x + x_amp,
+                11: 90 + back_x + x_amp,
+                13: 90 - back_x - x_amp,
+                2: 60,
+                4: 120,
+                12: 120,
+                14: 60,
+            },
+        }
+        
+        start_positions = direction_starts.get(direction, direction_starts["forward"])
+        self.move_servo(start_positions, steps=5, delay=0.02)
 
         period = [T, T/2, T, T/2, T, T/2, T, T/2]
         amplitude = [x_amp, z_amp, x_amp, z_amp, x_amp, z_amp, x_amp, z_amp]
@@ -200,7 +246,7 @@ class Kame:
                 for i in range(8):
                     self.osc[i].refresh()
 
-                positions = {}
+                positions = current_positions.copy()
 
                 positions[1] = 90 - self.osc[0].output
                 positions[3] = 90 + self.osc[2].output
@@ -317,7 +363,7 @@ class Kame:
                 positions[14] = 90              
 
                 self.set_servo(positions)        
-                plotter.update_plot(positions)   
+                # plotter.update_plot(positions)   
                 time.sleep(0.01)
 
             except Exception as e:
@@ -361,11 +407,15 @@ class Kame:
         self.move_servo(femur_angles, steps=2, delay=0.02)
 
 
-kame = Kame()
-plotter = ServoPlotter(show_servos=[2, 4, 12, 14])  
-# plotter = ServoPlotter(show_servos=[1, 3, 11, 13])  
-# plotter = ServoPlotter(show_servos=[1, 2, 3, 4, 11, 12, 13, 14])  
+# kame = Kame()
+# # plotter = ServoPlotter(show_servos=[2, 4, 12, 14])  
+# # plotter = ServoPlotter(show_servos=[1, 3, 11, 13])  
+# # plotter = ServoPlotter(show_servos=[1, 2, 3, 4, 11, 12, 13, 14])  
+# # plotter = ServoPlotter(show_servos=[1, 3])  
+# # plotter = ServoPlotter(show_servos=[11, 13])  
+# # plotter = ServoPlotter(show_servos=[2, 4])  
+# # plotter = ServoPlotter(show_servos=[12, 14])  
 
 
-kame.move("forward", steps=4, T=1000)
-plt.show()
+# kame.move("right", steps=2, T=2000)
+# plt.show()
