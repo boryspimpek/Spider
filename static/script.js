@@ -23,6 +23,23 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
+    function sendPostRequest(url) {
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('status').textContent = data.message || data.status || 'Command sent';
+            })
+            .catch(err => {
+                console.error('Request failed:', err);
+                document.getElementById('status').textContent = 'Error sending command';
+            });
+    }
+
     // Obsługa przycisku walk forward (touch/hold)
     const walkForwardBtn = document.getElementById('walk forward');
     if (walkForwardBtn) {
@@ -363,6 +380,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
     })();
+
+    // Obsługa przycisku dance
+     const danceBtn = document.getElementById('dance');
+    if (danceBtn) {
+        danceBtn.addEventListener('click', () => sendPostRequest('/startdance'));
+    }
+
+    // Obsługa przycisku up down
+    const upDownBtn = document.getElementById('updown');   
+    if (upDownBtn) {
+        upDownBtn.addEventListener('click', () => sendPostRequest('/startupdown'));
+    }
+
+    // Obsługa przycisku push up
+    const pushUpBtn = document.getElementById('pushup');    
+    if (pushUpBtn) {
+        pushUpBtn.addEventListener('click', () => sendPostRequest('/startpushup'));
+    }
+
+    // Obsługa przycisku hello
+    const helloBtn = document.getElementById('hello');  
+    if (helloBtn) {
+        helloBtn.addEventListener('click', () => sendPostRequest('/starthello'));
+    }
+
+    // Obsługa przycisku neutral
+    const neutralBtn = document.getElementById('neutral');  
+    if (neutralBtn) {
+        neutralBtn.addEventListener('click', () => sendPostRequest('/startneutral'));
+    }
 
     // Udostępnij funkcję sendCommand globalnie dla innych przycisków
     window.sendCommand = sendCommand;

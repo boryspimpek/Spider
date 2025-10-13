@@ -273,7 +273,7 @@ class Kame:
                 print(f"Błąd podczas ruchu ({direction}): {e}")
                 break
 
-    def dance(self, steps=2, T=2000):
+    def dance(self, steps=2, T=1000):
         x_amp = 0
         z_amp = 15
         high_z = -15
@@ -288,7 +288,7 @@ class Kame:
         self._configure_oscillators(period, amplitude, offset, phase)
         self._execute_movement(steps, T)
 
-    def updown(self, steps=4, T=2000):
+    def updown(self, steps=2, T=1000):
         x_amp = 0
         z_amp = 15
         high_z = -15
@@ -303,7 +303,7 @@ class Kame:
         self._configure_oscillators(period, amplitude, offset, phase)
         self._execute_movement(steps, T)
 
-    def pushup(self, steps=4, T=2000):
+    def pushup(self, steps=2, T=1000):
         x_amp = 0
         z_amp = 15
         high_z = -15
@@ -318,7 +318,7 @@ class Kame:
         self._configure_oscillators(period, amplitude, offset, phase)
         self._execute_movement(steps, T)
 
-    def hello(self, steps=2, T=2000):
+    def hello(self, steps=2, T=1000):
         front_x = 15
         back_x = 10
 
@@ -333,7 +333,7 @@ class Kame:
             14: 90             
         }, steps=10, delay=0.02)
 
-        time.sleep(2)
+        time.sleep(0.5)
 
         self.osc[2].period = T
         self.osc[2].amplitude = 15
@@ -408,14 +408,14 @@ class Kame:
 
 
 # kame = Kame()
-# # plotter = ServoPlotter(show_servos=[2, 4, 12, 14])  
-# # plotter = ServoPlotter(show_servos=[1, 3, 11, 13])  
-# # plotter = ServoPlotter(show_servos=[1, 2, 3, 4, 11, 12, 13, 14])  
-# # plotter = ServoPlotter(show_servos=[1, 3])  
-# # plotter = ServoPlotter(show_servos=[11, 13])  
-# # plotter = ServoPlotter(show_servos=[2, 4])  
-# # plotter = ServoPlotter(show_servos=[12, 14])  
+# plotter = ServoPlotter(show_servos=[2, 4, 12, 14])  
+# # # plotter = ServoPlotter(show_servos=[1, 3, 11, 13])  
+# # # plotter = ServoPlotter(show_servos=[1, 2, 3, 4, 11, 12, 13, 14])  
+# # # plotter = ServoPlotter(show_servos=[1, 3])  
+# # # plotter = ServoPlotter(show_servos=[11, 13])  
+# # # plotter = ServoPlotter(show_servos=[2, 4])  
+# # # plotter = ServoPlotter(show_servos=[12, 14])  
 
 
-# kame.move("right", steps=2, T=2000)
+# kame.dance(steps=2, T=1000)
 # plt.show()

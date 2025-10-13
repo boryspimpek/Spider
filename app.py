@@ -29,7 +29,6 @@ def stop_movement_func():
     if movement_thread and movement_thread.is_alive():
         movement_thread.join(timeout=1.0)
 
-# Obsługa strony głównej
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -121,6 +120,31 @@ def stop_movement_endpoint():
             'status': 'error',
             'message': f'Błąd zatrzymywania: {str(e)}'
         }), 500
+
+@app.route('/startdance', methods=['POST'])
+def start_dance():
+    kame.dance()
+    return jsonify({'status': 'success', 'message': 'Dance started!'})
+
+@app.route('/startupdown', methods=['POST'])
+def start_updown():
+    kame.updown()
+    return jsonify({'status': 'success', 'message': 'Up Down started!'})
+
+@app.route('/startpushup', methods=['POST'])
+def start_pushup():
+    kame.pushup()
+    return jsonify({'status': 'success', 'message': 'Push up started!'})
+
+@app.route('/starthello', methods=['POST'])
+def start_hello():
+    kame.hello()
+    return jsonify({'status': 'success', 'message': 'Hello started!'})
+
+@app.route('/startneutral', methods=['POST'])
+def start_neutral():
+    kame.set_neutral()
+    return jsonify({'status': 'success', 'message': 'Neutral position!'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
