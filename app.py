@@ -12,15 +12,18 @@ stop_movement = False
 app = Flask(__name__)
 
 def continuous_movement(direction):
-    """Uproszczona funkcja ciągłego ruchu"""
     global stop_movement
     stop_movement = False
 
+    # Pierwszy ruch z prepare_move
+    kame.move(direction=direction, steps=1, T=2000, prepare=True)
+    
+    # Kolejne ruchy bez prepare_move  
     while not stop_movement:
-        kame.move(direction=direction, steps=1, T=2000)
+        kame.move(direction=direction, steps=1, T=2000, prepare=False)
         if stop_movement:
             break
-
+        
 def stop_movement_func():
     """Zatrzymanie ruchu"""
     global stop_movement, movement_thread

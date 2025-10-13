@@ -174,7 +174,7 @@ class Kame:
     def set_neutral(self):
         self.move_servo(neutral_positions)
 
-    def move(self, direction="forward", steps=4, T=2000):
+    def move(self, direction="forward", steps=1, T=2000, prepare=True):
         x_amp = 15
         z_amp = 15
         high_z = -15
@@ -182,73 +182,77 @@ class Kame:
         if direction == "forward":
             front_x = -10
             back_x = -30
-            phase = [90, 270, 270, 270, 90, 270, 270, 270]
+            phase = [270, 270, 270, 90, 90, 90, 90, 270]
         elif direction == "backward":
             front_x = -30
             back_x = -10
-            phase = [270, 270, 90, 270, 270, 270, 90, 270]
+            phase = [90, 270, 90, 90, 270, 90, 270, 270]
         elif direction == "left":
             front_x = -30
             back_x = -30
-            phase = [270, 270, 270, 270, 270, 270, 270, 270]
+            phase = [90, 270, 270, 90, 270, 90, 90, 270]
         elif direction == "right":
             front_x = -30
             back_x = -30
-            phase = [90, 270, 90, 270, 90, 270, 90, 270]
+            phase = [270, 270, 90, 90, 90, 90, 270, 270]
         else:
             print(f"Nieznany kierunek: {direction}")
             return
         
-        direction_starts = {
-            "forward": {
-                1: 90 - front_x - x_amp,
-                3: 90 + front_x - x_amp,
-                11: 90 + back_x + x_amp,
-                13: 90 - back_x + x_amp,
-                2: 60,
-                4: 120,
-                12: 120,
-                14: 60,
-            },
-            "backward": {
-                1: 90 - front_x + x_amp,
-                3: 90 + front_x + x_amp,
-                11: 90 + back_x - x_amp,
-                13: 90 - back_x - x_amp,
-                2: 60,
-                4: 120,
-                12: 120,
-                14: 60,
-            },
-            "left": {
-                1: 90 - front_x + x_amp,
-                3: 90 + front_x - x_amp,
-                11: 90 + back_x - x_amp,
-                13: 90 - back_x + x_amp,
-                2: 60,
-                4: 120,
-                12: 120,
-                14: 60,
-            },
-            "right": {
-                1: 90 - front_x - x_amp,
-                3: 90 + front_x + x_amp,
-                11: 90 + back_x + x_amp,
-                13: 90 - back_x - x_amp,
-                2: 60,
-                4: 120,
-                12: 120,
-                14: 60,
-            },
-        }
+        # direction_starts = {
+        #     "forward": {
+        #         1: 90 - front_x - x_amp,
+        #         3: 90 + front_x - x_amp,
+        #         11: 90 + back_x + x_amp,
+        #         13: 90 - back_x + x_amp,
+        #         2: 60,
+        #         4: 120,
+        #         12: 120,
+        #         14: 60,
+        #     },
+        #     "backward": {
+        #         1: 90 - front_x + x_amp,
+        #         3: 90 + front_x + x_amp,
+        #         11: 90 + back_x - x_amp,
+        #         13: 90 - back_x - x_amp,
+        #         2: 60,
+        #         4: 120,
+        #         12: 120,
+        #         14: 60,
+        #     },
+        #     "left": {
+        #         1: 90 - front_x + x_amp,
+        #         3: 90 + front_x - x_amp,
+        #         11: 90 + back_x - x_amp,
+        #         13: 90 - back_x + x_amp,
+        #         2: 60,
+        #         4: 120,
+        #         12: 120,
+        #         14: 60,
+        #     },
+        #     "right": {
+        #         1: 90 - front_x - x_amp,
+        #         3: 90 + front_x + x_amp,
+        #         11: 90 + back_x + x_amp,
+        #         13: 90 - back_x - x_amp,
+        #         2: 60,
+        #         4: 120,
+        #         12: 120,
+        #         14: 60,
+        #     },
+        # }
         
-        start_positions = direction_starts.get(direction, direction_starts["forward"])
-        self.move_servo(start_positions, steps=5, delay=0.02)
+        # start_positions = direction_starts.get(direction, direction_starts["forward"])
+        # self.move_servo(start_positions, steps=5, delay=0.02)
+        # time.sleep(1)
 
         period = [T, T/2, T, T/2, T, T/2, T, T/2]
         amplitude = [x_amp, z_amp, x_amp, z_amp, x_amp, z_amp, x_amp, z_amp]
-        offset = [front_x, high_z, front_x, high_z, back_x, high_z, back_x, high_z]
+        offset = [90 - front_x, 90 + high_z, 90 + front_x, 90 - high_z, 90 + back_x, 90 - high_z, 90 - back_x, 90 + high_z]
 
+        if prepare:
+            self.prepare_move(amplitude, offset, phase)
+            time.sleep(0.2)
 
         self._configure_oscillators(period, amplitude, offset, phase)
 
@@ -268,19 +272,19 @@ class Kame:
 
                 positions = current_positions.copy()
 
-                positions[1] = 90 - self.osc[0].output
-                positions[3] = 90 + self.osc[2].output
-                positions[11] = 90 + self.osc[4].output  
-                positions[13] = 90 - self.osc[6].output
+                positions[1] = self.osc[0].output
+                positions[3] = self.osc[2].output
+                positions[11] = self.osc[4].output  
+                positions[13] = self.osc[6].output
 
                 if side == 0:
-                    positions[2] = 90 + self.osc[1].output
-                    positions[14] = 90 + self.osc[7].output
+                    positions[2] = self.osc[1].output
+                    positions[14] = self.osc[7].output
                     positions[4] = 120
                     positions[12] = 120
                 else:
-                    positions[4] = 90 - self.osc[3].output
-                    positions[12] = 90 - self.osc[5].output
+                    positions[4] = self.osc[3].output
+                    positions[12] = self.osc[5].output
                     positions[2] = 60
                     positions[14] = 60
 
@@ -445,14 +449,14 @@ class Kame:
 
 
 # kame = Kame()
-# plotter = ServoPlotter(show_servos=[2, 4, 12, 14])  
-# # # plotter = ServoPlotter(show_servos=[1, 3, 11, 13])  
+# # plotter = ServoPlotter(show_servos=[2, 4, 12, 14])  
+# # plotter = ServoPlotter(show_servos=[1, 3, 11, 13])  
 # # # plotter = ServoPlotter(show_servos=[1, 2, 3, 4, 11, 12, 13, 14])  
-# # # plotter = ServoPlotter(show_servos=[1, 3])  
+# plotter = ServoPlotter(show_servos=[3, 4])  
 # # # plotter = ServoPlotter(show_servos=[11, 13])  
 # # # plotter = ServoPlotter(show_servos=[2, 4])  
 # # # plotter = ServoPlotter(show_servos=[12, 14])  
 
 
-# kame.dance(steps=2, T=1000)
+# kame.move("forward", steps=2, T=2000)
 # plt.show()
