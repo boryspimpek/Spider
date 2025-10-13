@@ -5,60 +5,29 @@ from main import Kame
 
 kame = Kame()
 
-# Zmienna do kontroli chodzenia
-walking_thread = None
-stop_walking = False
+# Zmienne do kontroli ruchu
+movement_thread = None
+stop_movement = False
 
 app = Flask(__name__)
 
+def continuous_movement(direction):
+    """Uproszczona funkcja ciągłego ruchu"""
+    global stop_movement
+    stop_movement = False
 
-def walk_forward_continuous():
-    """Funkcja do ciągłego chodzenia w osobnym wątku"""
-    global stop_walking
-    stop_walking = False
-    
-    while not stop_walking:
-        kame.walk_forward(steps=1, T=1000)  # Jeden krok na raz
-        if stop_walking:
+    while not stop_movement:
+        kame.move(direction=direction, steps=1, T=2000)
+        if stop_movement:
             break
 
-def walk_backward_continuous():
-    """Funkcja do ciągłego chodzenia do tyłu w osobnym wątku"""
-    global stop_walking
-    stop_walking = False
-    
-    while not stop_walking:
-        kame.walk_backward(steps=1, T=1000)  # Jeden krok do tyłu na raz
-        if stop_walking:
-            break
+def stop_movement_func():
+    """Zatrzymanie ruchu"""
+    global stop_movement, movement_thread
+    stop_movement = True
 
-def turn_left_continuous():
-    """Funkcja do ciągłego skręcania w lewo w osobnym wątku"""
-    global stop_walking
-    stop_walking = False
-    
-    while not stop_walking:
-        kame.turn_left(steps=1, T=2000)  # Jeden krok skrętu na raz
-        if stop_walking:
-            break
-
-def turn_right_continuous():
-    """Funkcja do ciągłego skręcania w prawo w osobnym wątku"""
-    global stop_walking
-    stop_walking = False
-    
-    while not stop_walking:
-        kame.turn_right(steps=1, T=2000)  # Jeden krok skrętu na raz
-        if stop_walking:
-            break
-
-def stop_walk():
-    """Zatrzymanie chodzenia"""
-    global stop_walking, walking_thread
-    stop_walking = True
-    
-    if walking_thread and walking_thread.is_alive():
-        walking_thread.join(timeout=1.0)
+    if movement_thread and movement_thread.is_alive():
+        movement_thread.join(timeout=1.0)
 
 # Obsługa strony głównej
 @app.route('/')
@@ -71,13 +40,10 @@ def joystick_control():
         data = request.get_json()
         x = float(data.get('x', 0))
         y = float(data.get('y', 0))
-        
-        # Opcjonalnie: maksymalna zmiana kąta
         max_angle = int(data.get('max_angle', 30))
-        
-        # Wywołaj funkcję z main.py
+
         kame.set_femur_from_joystick(x, y, max_angle_change=max_angle)
-        
+
         return jsonify({
             'status': 'success',
             'x': x,
@@ -95,13 +61,10 @@ def slider_control():
     try:
         data = request.get_json()
         value = float(data.get('value', 0))
-        
-        # Opcjonalnie: maksymalna zmiana kąta
         max_angle = int(data.get('max_angle', 30))
-        
-        # Wywołaj funkcję z main.py
+
         kame.set_all_femur_from_slider(value, max_angle_change=max_angle)
-        
+
         return jsonify({
             'status': 'success',
             'value': value,
@@ -113,118 +76,51 @@ def slider_control():
             'message': f'Błąd slidera: {str(e)}'
         }), 500
 
-@app.route('/walkforward')
-def walk_forward():
-    """Rozpocznij chodzenie do przodu"""
+@app.route('/move/<direction>')
+def move_robot(direction):
     try:
-        global walking_thread, stop_walking
-        
-        # Zatrzymaj poprzednie chodzenie jeśli trwa
-        stop_walk()
-        
-        # Ustaw flagę i uruchom nowy wątek
-        stop_walking = False
-        walking_thread = threading.Thread(target=walk_forward_continuous)
-        walking_thread.daemon = True
-        walking_thread.start()
-        
+        global movement_thread, stop_movement
+
+        valid_directions = ['forward', 'backward', 'left', 'right']
+
+        if direction not in valid_directions:
+            return jsonify({
+                'status': 'error',
+                'message': f'Nieznany kierunek: {direction}'
+            }), 400
+
+        stop_movement_func()
+
+        stop_movement = False
+        movement_thread = threading.Thread(
+            target=continuous_movement, 
+            args=(direction,)  # Tylko kierunek
+        )
+        movement_thread.daemon = True
+        movement_thread.start()
+
         return jsonify({
-            'status': 'walking_forward',
-            'message': 'Rozpoczęto chodzenie do przodu'
+            'status': f'moving_{direction}',
+            'message': f'Rozpoczęto ruch: {direction}',
+            'direction': direction
         })
     except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'message': f'Błąd chodzenia: {str(e)}'
-        }), 500
-
-@app.route('/walkbackward')
-def walk_backward():
-    """Rozpocznij chodzenie do tyłu"""
+        return jsonify({'status': 'error', 'message': f'Błąd ruchu: {str(e)}'}), 500
+    
+@app.route('/stop')
+def stop_movement_endpoint():
+    """Zatrzymaj ruch"""
     try:
-        global walking_thread, stop_walking
-        
-        # Zatrzymaj poprzednie chodzenie jeśli trwa
-        stop_walk()
-        
-        # Ustaw flagę i uruchom nowy wątek
-        stop_walking = False
-        walking_thread = threading.Thread(target=walk_backward_continuous)
-        walking_thread.daemon = True
-        walking_thread.start()
-        
-        return jsonify({
-            'status': 'walking_backward',
-            'message': 'Rozpoczęto chodzenie do tyłu'
-        })
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'message': f'Błąd chodzenia: {str(e)}'
-        }), 500
-
-@app.route('/stopwalk')
-def stop_walk_endpoint():
-    """Zatrzymaj chodzenie"""
-    try:
-        stop_walk()
-        
+        stop_movement_func()
         return jsonify({
             'status': 'stopped',
-            'message': 'Zatrzymano chodzenie'
+            'message': 'Zatrzymano ruch'
         })
     except Exception as e:
         return jsonify({
             'status': 'error',
             'message': f'Błąd zatrzymywania: {str(e)}'
         }), 500
-
-@app.route('/turnleft')
-def turn_left():
-    """Wykonaj skręt w lewo"""
-    try:
-        global walking_thread, stop_walking
-        # Zatrzymaj poprzednie chodzenie jeśli trwa
-        stop_walk()
-
-        # Ustaw flage i uruchom nowy wątek
-        stop_walking = False
-        walking_thread = threading.Thread(target=turn_left_continuous)
-        walking_thread.daemon = True    
-        walking_thread.start()
-        return jsonify({
-            'status': 'turning_left',
-            'message': 'Wykonano skręt w lewo'
-        })
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'message': f'Błąd skrętu: {str(e)}'
-        }), 500
-
-@app.route('/turnright')
-def turn_right():
-    """Wykonaj skręt w prawo"""
-    try:
-        global walking_thread, stop_walking
-        # Zatrzymaj poprzednie chodzenie jeśli trwa
-        stop_walk()
-
-        # Ustaw flage i uruchom nowy wątek
-        stop_walking = False
-        walking_thread = threading.Thread(target=turn_right_continuous)
-        walking_thread.daemon = True    
-        walking_thread.start()
-        return jsonify({
-            'status': 'turning_right',
-            'message': 'Wykonano skręt w prawo'
-        })
-    except Exception as e:
-        return jsonify({
-            'status': 'error',
-            'message': f'Błąd skrętu: {str(e)}'
-        }), 500
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

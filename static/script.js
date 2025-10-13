@@ -26,39 +26,39 @@ document.addEventListener('DOMContentLoaded', () => {
     // Obsługa przycisku walk forward (touch/hold)
     const walkForwardBtn = document.getElementById('walk forward');
     if (walkForwardBtn) {
-        walkForwardBtn.addEventListener('mousedown', () => sendRequest('/walkforward'));
-        walkForwardBtn.addEventListener('mouseup', () => sendRequest('/stopwalk'));
-        walkForwardBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('/walkforward');});
-        walkForwardBtn.addEventListener('touchend', (e) => {e.preventDefault();sendRequest('/stopwalk');});
+        walkForwardBtn.addEventListener('mousedown', () => sendRequest('/move/forward'));
+        walkForwardBtn.addEventListener('mouseup', () => sendRequest('/stop'));
+        walkForwardBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('//move/forward');});
+        walkForwardBtn.addEventListener('touchend', (e) => {e.preventDefault();sendRequest('/stop');});
     }
 
-    // Obsługa przycisku walk back (touch/hold)
-    const walkBackBtn = document.getElementById('walk back');
-    if (walkBackBtn) {
-        walkBackBtn.addEventListener('mousedown', () => sendRequest('/walkbackward'));
-        walkBackBtn.addEventListener('mouseup', () => sendRequest('/stopwalk'));
-        walkBackBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('/walkbackward');});
-        walkBackBtn.addEventListener('touchend', (e) => {e.preventDefault();sendRequest('/stopwalk');});
+    // Obsługa przycisku walk backward
+    const walkBackwardBtn = document.getElementById('walk backward');
+    if (walkBackwardBtn) {
+        walkBackwardBtn.addEventListener('mousedown', () => sendRequest('/move/backward'));
+        walkBackwardBtn.addEventListener('mouseup', () => sendRequest('/stop'));
+        walkBackwardBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('/move/backward');});
+        walkBackwardBtn.addEventListener('touchend', (e) => {e.preventDefault(); sendRequest('/stop');});
     }
 
-    // Obsługa przycisku turn right (touch/hold)
-    const turnRightBtn = document.getElementById('turn right');
-    if (turnRightBtn) {
-        turnRightBtn.addEventListener('mousedown', () => sendRequest('/turnright'));
-        turnRightBtn.addEventListener('mouseup', () => sendRequest('/stopwalk'));
-        turnRightBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('/turnright');});
-        turnRightBtn.addEventListener('touchend', (e) => {e.preventDefault();sendRequest('/stopwalk');});
-    }
-
-    // Obsługa przycisku turn left (touch/hold)
+    // Obsługa przycisku turn left
     const turnLeftBtn = document.getElementById('turn left');
     if (turnLeftBtn) {
-        turnLeftBtn.addEventListener('mousedown', () => sendRequest('/turnleft'));
-        turnLeftBtn.addEventListener('mouseup', () => sendRequest('/stopwalk'));
-        turnLeftBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('/turnleft');});
-        turnLeftBtn.addEventListener('touchend', (e) => {e.preventDefault();sendRequest('/stopwalk');});
+        turnLeftBtn.addEventListener('mousedown', () => sendRequest('/move/left'));
+        turnLeftBtn.addEventListener('mouseup', () => sendRequest('/stop'));
+        turnLeftBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('/move/left');});
+        turnLeftBtn.addEventListener('touchend', (e) => {e.preventDefault(); sendRequest('/stop');});
     }
 
+    // Obsługa przycisku turn right
+    const turnRightBtn = document.getElementById('turn right');
+    if (turnRightBtn) {
+        turnRightBtn.addEventListener('mousedown', () => sendRequest('/move/right'));
+        turnRightBtn.addEventListener('mouseup', () => sendRequest('/stop'));
+        turnRightBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('/move/right');});
+        turnRightBtn.addEventListener('touchend', (e) => {e.preventDefault(); sendRequest('/stop');});
+    }
+    
     // Joystick Control
     (function() {
         const wrapper = document.getElementById('joystickWrapper');
