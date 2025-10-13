@@ -152,6 +152,25 @@ class Kame:
                 print(f"Błąd podczas ruchu: {e}")
                 break
 
+    def prepare_move(self, amplitude, offset, phase):
+        positions = {}
+        for i in range(8):
+            phase_rad = math.radians(phase[i])
+            initial_position = offset[i] + amplitude[i] * math.sin(phase_rad)
+            positions[i] = round(initial_position, 2)
+        print(f"positions = {positions}")
+
+        self.move_servo({
+            1: positions[0],
+            2: positions[1],
+            3: positions[2],
+            4: positions[3],
+            11: positions[4],
+            12: positions[5],
+            13: positions[6],
+            14: positions[7]
+        }, steps=10, delay=0.02)
+
     def set_neutral(self):
         self.move_servo(neutral_positions)
 
@@ -230,6 +249,7 @@ class Kame:
         amplitude = [x_amp, z_amp, x_amp, z_amp, x_amp, z_amp, x_amp, z_amp]
         offset = [front_x, high_z, front_x, high_z, back_x, high_z, back_x, high_z]
 
+
         self._configure_oscillators(period, amplitude, offset, phase)
 
         init_ref = time.time() * 1000
@@ -285,8 +305,13 @@ class Kame:
         offset = [90 + front_x, 90 + high_z, 90 - front_x, 90 - high_z, 90 - back_x, 90 - high_z, 90 + back_x, 90 + high_z]
         phase = [0, 0, 0, 270, 0, 90, 0, 180]
 
+        self.prepare_move(amplitude, offset, phase)
+
         self._configure_oscillators(period, amplitude, offset, phase)
         self._execute_movement(steps, T)
+        time.sleep(0.2)
+
+        self.set_neutral()
 
     def updown(self, steps=2, T=1000):
         x_amp = 0
@@ -300,8 +325,14 @@ class Kame:
         offset = [90 + front_x, 90 + high_z, 90 - front_x, 90 - high_z, 90 - back_x, 90 - high_z, 90 + back_x, 90 + high_z]
         phase = [0, 270, 0, 90, 0, 90, 0, 270]
 
+        self.prepare_move(amplitude, offset, phase)
+        time.sleep(0.2)
+
         self._configure_oscillators(period, amplitude, offset, phase)
         self._execute_movement(steps, T)
+        time.sleep(0.2)
+
+        self.set_neutral()
 
     def pushup(self, steps=2, T=1000):
         x_amp = 0
@@ -315,8 +346,14 @@ class Kame:
         offset = [90 + front_x, 90 + high_z, 90 - front_x, 90 - high_z, 90 - back_x, 90 + 30, 90 + back_x, 90 - 30]
         phase = [0, 270, 0, 90, 0, 0, 0, 0]
 
+        self.prepare_move(amplitude, offset, phase)
+        time.sleep(0.2)
+
         self._configure_oscillators(period, amplitude, offset, phase)
         self._execute_movement(steps, T)
+        time.sleep(0.2)
+
+        self.set_neutral()
 
     def hello(self, steps=2, T=1000):
         front_x = 15
