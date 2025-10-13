@@ -172,7 +172,7 @@ class Kame:
         }, steps=10, delay=0.02)
 
     def set_neutral(self):
-        self.move_servo(neutral_positions)
+        self.move_servo(neutral_positions, steps=20, delay=0.02)
 
     def move(self, direction="forward", steps=1, T=2000, prepare=True):
         x_amp = 15
@@ -199,53 +199,6 @@ class Kame:
             print(f"Nieznany kierunek: {direction}")
             return
         
-        # direction_starts = {
-        #     "forward": {
-        #         1: 90 - front_x - x_amp,
-        #         3: 90 + front_x - x_amp,
-        #         11: 90 + back_x + x_amp,
-        #         13: 90 - back_x + x_amp,
-        #         2: 60,
-        #         4: 120,
-        #         12: 120,
-        #         14: 60,
-        #     },
-        #     "backward": {
-        #         1: 90 - front_x + x_amp,
-        #         3: 90 + front_x + x_amp,
-        #         11: 90 + back_x - x_amp,
-        #         13: 90 - back_x - x_amp,
-        #         2: 60,
-        #         4: 120,
-        #         12: 120,
-        #         14: 60,
-        #     },
-        #     "left": {
-        #         1: 90 - front_x + x_amp,
-        #         3: 90 + front_x - x_amp,
-        #         11: 90 + back_x - x_amp,
-        #         13: 90 - back_x + x_amp,
-        #         2: 60,
-        #         4: 120,
-        #         12: 120,
-        #         14: 60,
-        #     },
-        #     "right": {
-        #         1: 90 - front_x - x_amp,
-        #         3: 90 + front_x + x_amp,
-        #         11: 90 + back_x + x_amp,
-        #         13: 90 - back_x - x_amp,
-        #         2: 60,
-        #         4: 120,
-        #         12: 120,
-        #         14: 60,
-        #     },
-        # }
-        
-        # start_positions = direction_starts.get(direction, direction_starts["forward"])
-        # self.move_servo(start_positions, steps=5, delay=0.02)
-        # time.sleep(1)
-
         period = [T, T/2, T, T/2, T, T/2, T, T/2]
         amplitude = [x_amp, z_amp, x_amp, z_amp, x_amp, z_amp, x_amp, z_amp]
         offset = [90 - front_x, 90 + high_z, 90 + front_x, 90 - high_z, 90 + back_x, 90 - high_z, 90 - back_x, 90 + high_z]
@@ -288,7 +241,6 @@ class Kame:
                     positions[2] = 60
                     positions[14] = 60
 
-                # print(f"{direction.capitalize()} - Pozycje serw: { {k: round(v) for k, v in positions.items()} }")   
                 self.set_servo(positions)
                 # plotter.update_plot(positions)
                 time.sleep(0.01)
@@ -410,6 +362,8 @@ class Kame:
             except Exception as e:
                 print(f"Błąd podczas machania: {e}")
                 break
+        
+        self.set_neutral()
 
     def set_femur_from_joystick(self, x, y, max_angle_change=30):
         angle_x = y * max_angle_change # odwrócone osie y dla naturalnego ruchu

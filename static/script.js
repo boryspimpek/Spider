@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (walkForwardBtn) {
         walkForwardBtn.addEventListener('mousedown', () => sendRequest('/move/forward'));
         walkForwardBtn.addEventListener('mouseup', () => sendRequest('/stop'));
-        walkForwardBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('//move/forward');});
+        walkForwardBtn.addEventListener('touchstart', (e) => {e.preventDefault(); sendRequest('/move/forward');});
         walkForwardBtn.addEventListener('touchend', (e) => {e.preventDefault();sendRequest('/stop');});
     }
 
