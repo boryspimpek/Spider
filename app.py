@@ -16,11 +16,11 @@ def continuous_movement(direction):
     stop_movement = False
 
     # Pierwszy ruch z prepare_move
-    kame.move(direction=direction, steps=1, T=2000, prepare=True)
+    kame.move(direction=direction, steps=1, T=500, prepare=True)
     
     # Kolejne ruchy bez prepare_move  
     while not stop_movement:
-        kame.move(direction=direction, steps=1, T=2000, prepare=False)
+        kame.move(direction=direction, steps=1, T=500, prepare=False)
         if stop_movement:
             break
         

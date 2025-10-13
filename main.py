@@ -12,7 +12,8 @@ ESP_IP = "192.168.4.1"
 ESP_PORT = 8888
 SERVO_PINS = [1, 3, 2, 4, 11, 13, 12, 14]
 neutral_positions = {1: 120, 2: 60, 3: 60, 4: 120, 11: 60, 12: 120, 13: 120, 14: 60}
-trimm = {1: 8, 2: -6, 3: 0, 4: -12, 11: 3, 12: 1, 13: 0, 14: -3}
+positions_90 = {1: 90, 2: 90, 3: 90, 4: 90, 11: 90, 12: 90, 13: 90, 14: 90} 
+trimm = {1: 10, 2: -3, 3: 0, 4: 0, 11: 3, 12: 5, 13: 0, 14: -3}
 
 current_positions = neutral_positions.copy()
 
@@ -74,7 +75,7 @@ class Kame:
         for osc in self.osc:
             osc.ref_time = ref_time
             
-        self.set_neutral()
+        # self.set_neutral()
     
     def set_servo(self, servos):
         global current_positions
@@ -174,8 +175,8 @@ class Kame:
     def set_neutral(self):
         self.move_servo(neutral_positions, steps=20, delay=0.02)
 
-    def move(self, direction="forward", steps=1, T=2000, prepare=True):
-        x_amp = 15
+    def move(self, direction="forward", steps=1, T=1000, prepare=True):
+        x_amp = 10
         z_amp = 15
         high_z = -15
         
@@ -203,9 +204,9 @@ class Kame:
         amplitude = [x_amp, z_amp, x_amp, z_amp, x_amp, z_amp, x_amp, z_amp]
         offset = [90 - front_x, 90 + high_z, 90 + front_x, 90 - high_z, 90 + back_x, 90 - high_z, 90 - back_x, 90 + high_z]
 
-        if prepare:
-            self.prepare_move(amplitude, offset, phase)
-            time.sleep(0.2)
+        # if prepare:
+        #     self.prepare_move(amplitude, offset, phase)
+        #     time.sleep(0.2)
 
         self._configure_oscillators(period, amplitude, offset, phase)
 
@@ -244,11 +245,11 @@ class Kame:
                 self.set_servo(positions)
                 # plotter.update_plot(positions)
                 time.sleep(0.01)
-
+            
             except Exception as e:
                 print(f"Błąd podczas ruchu ({direction}): {e}")
                 break
-
+        
     def dance(self, steps=2, T=1000):
         x_amp = 0
         z_amp = 15
@@ -269,7 +270,7 @@ class Kame:
 
         self.set_neutral()
 
-    def updown(self, steps=2, T=1000):
+    def updown(self, steps=2, T=500):
         x_amp = 0
         z_amp = 15
         high_z = -15
@@ -290,7 +291,7 @@ class Kame:
 
         self.set_neutral()
 
-    def pushup(self, steps=2, T=1000):
+    def pushup(self, steps=2, T=500):
         x_amp = 0
         z_amp = 15
         high_z = -15
@@ -314,7 +315,7 @@ class Kame:
     def hello(self, steps=2, T=1000):
         period = [T, T, T, T, T, T, T, T]
         amplitude = [0, 0, 15, 0, 0, 0, 0, 0]
-        offset = [100, 60, 75, 90, 100, 90, 80, 90]
+        offset = [125, 60, 45, 70, 100, 90, 80, 90]
         phase = [0, 0, 270, 0, 0, 0, 0, 0]
 
         self.prepare_move(amplitude, offset, phase)
@@ -364,14 +365,17 @@ class Kame:
 
 
 # kame = Kame()
-# # plotter = ServoPlotter(show_servos=[2, 4, 12, 14])  
-# # plotter = ServoPlotter(show_servos=[1, 3, 11, 13])  
-# # # plotter = ServoPlotter(show_servos=[1, 2, 3, 4, 11, 12, 13, 14])  
+# plotter = ServoPlotter(show_servos=[2, 4, 12, 14])  
+# plotter = ServoPlotter(show_servos=[1, 3, 11, 13])  
 # plotter = ServoPlotter(show_servos=[1, 2, 3, 4])  
-# # # plotter = ServoPlotter(show_servos=[11, 13])  
-# # # plotter = ServoPlotter(show_servos=[2, 4])  
-# # # plotter = ServoPlotter(show_servos=[12, 14])  
-
-
-# kame.frontback()
+# plotter = ServoPlotter(show_servos=[2, 4, 12, 14])  
+# plotter = ServoPlotter(show_servos=[11, 13])  
+# plotter = ServoPlotter(show_servos=[3, 4])  
+# plotter = ServoPlotter(show_servos=[12, 11])  
+# kame.move(direction="forward", steps=8, T=2000, prepare=True)
 # plt.show()
+
+
+# kame.set_neutral()
+
+# kame.move_servo(positions_90, steps=20, delay=0.02)
