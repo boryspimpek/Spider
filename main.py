@@ -75,7 +75,7 @@ class Kame:
         for osc in self.osc:
             osc.ref_time = ref_time
             
-        # self.set_neutral()
+        self.set_neutral()
     
     def set_servo(self, servos):
         global current_positions
@@ -173,7 +173,7 @@ class Kame:
         }, steps=10, delay=0.02)
 
     def set_neutral(self):
-        self.move_servo(neutral_positions, steps=20, delay=0.02)
+        self.move_servo(neutral_positions, steps=5, delay=0.02)
 
     def move(self, direction="forward", steps=1, T=1000, prepare=True):
         x_amp = 10
@@ -379,3 +379,4 @@ class Kame:
 # kame.set_neutral()
 
 # kame.move_servo(positions_90, steps=20, delay=0.02)
+# kame.move_servo({1:90, 2:90, 3:90, 4:90, 11:90, 12:90, 13:90, 14:90}, steps=20, delay=0.02)
